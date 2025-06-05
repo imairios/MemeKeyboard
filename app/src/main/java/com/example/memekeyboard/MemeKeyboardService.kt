@@ -1,55 +1,76 @@
 package com.example.memekeyboard.ui
 
+import android.content.Intent
 import android.inputmethodservice.InputMethodService
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.Button
-import android.widget.TextView
+import android.widget.EditText
 import com.example.memekeyboard.R
 
 class MemeKeyboardService : InputMethodService() {
 
     private var isCaps = false
-    private val searchBuffer = StringBuilder()
+    private lateinit var searchInput: EditText
 
     override fun onCreateInputView(): View {
         val view = layoutInflater.inflate(R.layout.meme_keyboard_layout, null)
-        val fakeSearchBox = view.findViewById<TextView>(R.id.search_input_fake)
 
+        searchInput = view.findViewById(R.id.search_input)
+
+        // Show system keyboard when EditText gets focus
+        searchInput.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) {
+                val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+                imm.showSoftInput(searchInput, InputMethodManager.SHOW_IMPLICIT)
+            }
+        }
+
+        searchInput.requestFocus()
+
+        // Handle key presses
         val keys = listOf(
             "a", "b", "c", "d", "e", "f", "g", "h", "i", "j",
             "k", "l", "m", "n", "o", "p", "q", "r", "s", "t",
             "u", "v", "w", "x", "y", "z"
         )
 
-        // Handle letter keys
         keys.forEach { key ->
             val buttonId = resources.getIdentifier("key_$key", "id", packageName)
             val button = view.findViewById<Button>(buttonId)
             button?.setOnClickListener {
-                val charToAdd = if (isCaps) key.uppercase() else key
-                searchBuffer.append(charToAdd)
-                fakeSearchBox.text = searchBuffer.toString()
-                // TODO: Filter memes based on searchBuffer.toString()
+                val char = if (isCaps) key.uppercase() else key
+                searchInput.append(char)
             }
         }
 
-        // Space key
-        view.findViewById<Button>(R.id.key_space).setOnClickListener {
-            searchBuffer.append(" ")
-            fakeSearchBox.text = searchBuffer.toString()
+        // Handle space
+        view.findViewById<Button>(R.id.key_space)?.setOnClickListener {
+            searchInput.append(" ")
         }
 
-        // Delete key
-        view.findViewById<Button>(R.id.key_delete).setOnClickListener {
-            if (searchBuffer.isNotEmpty()) {
-                searchBuffer.deleteCharAt(searchBuffer.length - 1)
-                fakeSearchBox.text = searchBuffer.toString()
+        // Handle delete
+        view.findViewById<Button>(R.id.key_delete)?.setOnClickListener {
+            val currentText = searchInput.text.toString()
+            if (currentText.isNotEmpty()) {
+                searchInput.setText(currentText.dropLast(1))
+                searchInput.setSelection(searchInput.text.length)
             }
         }
 
-        // Caps lock toggle
-        view.findViewById<Button>(R.id.key_caps).setOnClickListener {
+        // Handle caps lock
+        val capsButton = view.findViewById<Button>(R.id.key_caps)
+        capsButton?.setOnClickListener {
             isCaps = !isCaps
+            capsButton.alpha = if (isCaps) 1.0f else 0.5f
+        }
+
+        // 🔹 Launch FloatingInputActivity for system keyboard
+        val openInputBtn = view.findViewById<Button>(R.id.open_input_button)
+        openInputBtn?.setOnClickListener {
+            val intent = Intent(this, FloatingInputActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            startActivity(intent)
         }
 
         return view

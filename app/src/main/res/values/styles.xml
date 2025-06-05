@@ -8,4 +8,14 @@
         <item name="android:layout_margin">2dp</item>
     </style>
 
+    <style name="Theme.MemeKeyboard.Transparent" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:backgroundDimEnabled">false</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsFloating">true</item>
+    </style>
+
+
+
+
 </resources>

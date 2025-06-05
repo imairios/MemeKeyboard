@@ -27,12 +27,24 @@
         </service>
 
         <activity
+            android:name=".ui.FloatingInputActivity"
+            android:theme="@style/Theme.MemeKeyboard.Transparent"
+            android:exported="false"
+            android:windowSoftInputMode="stateVisible|adjustResize"
+            android:taskAffinity=""
+            android:excludeFromRecents="true"
+            android:launchMode="singleTop"/>
+
+
+        <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.MemeKeyboard">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
+
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>

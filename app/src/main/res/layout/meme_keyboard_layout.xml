@@ -8,17 +8,31 @@
     android:padding="8dp"
     android:background="@android:color/darker_gray">
 
-    <TextView
-        android:id="@+id/search_input_fake"
+    <!-- 🔹 Real editable field for searching -->
+    <EditText
+        android:id="@+id/search_input"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:hint="Search by tag"
         android:background="#FFFFFF"
+        android:textColor="#000000"
         android:padding="8dp"
-        android:text="Search by tag"
-        android:textColor="#000000" />
+        android:inputType="text"
+        android:imeOptions="actionDone"
+        android:focusable="true"
+        android:focusableInTouchMode="true" />
 
-    <!-- Row 1 -->
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+    <Button
+        android:id="@+id/open_input_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Open System Keyboard" />
+
+    <!-- 🔹 Keyboard Row 1 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
         <Button android:id="@+id/key_q" android:text="Q" style="@style/KeyboardKey"/>
         <Button android:id="@+id/key_w" android:text="W" style="@style/KeyboardKey"/>
         <Button android:id="@+id/key_e" android:text="E" style="@style/KeyboardKey"/>
@@ -31,8 +45,11 @@
         <Button android:id="@+id/key_p" android:text="P" style="@style/KeyboardKey"/>
     </LinearLayout>
 
-    <!-- Row 2 -->
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+    <!-- 🔹 Row 2 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
         <Button android:id="@+id/key_a" android:text="A" style="@style/KeyboardKey"/>
         <Button android:id="@+id/key_s" android:text="S" style="@style/KeyboardKey"/>
         <Button android:id="@+id/key_d" android:text="D" style="@style/KeyboardKey"/>
@@ -44,8 +61,11 @@
         <Button android:id="@+id/key_l" android:text="L" style="@style/KeyboardKey"/>
     </LinearLayout>
 
-    <!-- Row 3 -->
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+    <!-- 🔹 Row 3 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
         <Button android:id="@+id/key_caps" android:text="⇧" style="@style/KeyboardKey"/>
         <Button android:id="@+id/key_z" android:text="Z" style="@style/KeyboardKey"/>
         <Button android:id="@+id/key_x" android:text="X" style="@style/KeyboardKey"/>
@@ -57,9 +77,17 @@
         <Button android:id="@+id/key_delete" android:text="⌫" style="@style/KeyboardKey"/>
     </LinearLayout>
 
-    <!-- Row 4 -->
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
-        <Button android:id="@+id/key_space" android:text="SPACE" android:layout_weight="1" android:layout_width="0dp" android:layout_height="wrap_content"/>
+    <!-- 🔹 Row 4 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <Button
+            android:id="@+id/key_space"
+            android:text="SPACE"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"/>
     </LinearLayout>
 
 </LinearLayout>
