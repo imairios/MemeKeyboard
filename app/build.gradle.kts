@@ -63,5 +63,16 @@ dependencies {
     kapt("androidx.room:room-compiler:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1")
     implementation("io.coil-kt:coil-compose:2.6.0")
+    implementation ("io.coil-kt:coil:2.2.2")
+
+    implementation ("androidx.core:core:1.12.0")
+    implementation ("androidx.appcompat:appcompat:1.6.1")
+    implementation ("androidx.recyclerview:recyclerview:1.3.1")
+    implementation ("androidx.room:room-runtime:2.6.1")
+    kapt           ("androidx.room:room-compiler:2.6.1")
+    implementation ("androidx.room:room-ktx:2.6.1")
+    implementation ("io.coil-kt:coil:2.2.2")
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.1")
+    implementation ("androidx.compose.material3:material3:1.2.0-alpha02")
 
 }

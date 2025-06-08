@@ -1,91 +1,105 @@
-// ✅ MainScreen.kt
 package com.example.memekeyboard.ui
 
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.example.memekeyboard.data.Meme
 import com.example.memekeyboard.viewmodel.MemeViewModel
 
+/**
+ * H MainScreen emfanizei:
+ * 1) ena koumpi gia to pick image (pickImage())
+ * 2) ena horizontal scroll me ta memes (thumbnails)
+ *    - otan pataei meme, kalei to onMemeClick(pedi imageUriString)
+ */
 @Composable
 fun MainScreen(
     viewModel: MemeViewModel,
-    modifier: Modifier = Modifier,
     onPickImage: () -> Unit
 ) {
     val context = LocalContext.current
-    val memeList by viewModel.memes.collectAsState()
-    var searchQuery by remember { mutableStateOf(TextFieldValue("")) }
-    var confirmDelete by remember { mutableStateOf<Meme?>(null) }
 
-    val filteredList = memeList.filter {
-        searchQuery.text.isBlank() || it.tags.contains(searchQuery.text, ignoreCase = true)
-    }
+    // collected state apo viewmodel
+    val memesState = viewModel.filteredMemes.collectAsState()
 
     Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(horizontal = 16.dp, vertical = 48.dp) // fix buttons too high
+        modifier = Modifier.padding(16.dp)
     ) {
-        Button(onClick = onPickImage, modifier = Modifier.fillMaxWidth()) {
-            Text("Pick Image from Gallery")
+        // Koumpi pou kanei pickImageLauncher.launch("image/*")
+        Button(onClick = { onPickImage() }) {
+            Text(text = "Pick Meme Image")
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        // Spasi ligo
+        Box(modifier = Modifier.size(0.dp, 8.dp))
 
-        OutlinedTextField(
-            value = searchQuery,
-            onValueChange = { searchQuery = it },
-            label = { Text("Search by tag") },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        LazyColumn {
-            items(filteredList) { meme ->
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp)
-                        .clickable { confirmDelete = meme }
-                ) {
-                    Image(
-                        painter = rememberAsyncImagePainter(meme.imagePath),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(200.dp)
-                    )
-                    Text(text = "Tags: ${meme.tags}")
+        // Emfanizo ta memes se LazyRow
+        if (memesState.value.isEmpty()) {
+            Text(text = "No memes yet", style = MaterialTheme.typography.bodyMedium)
+        } else {
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier
+                    .padding(top = 8.dp)
+            ) {
+                items(memesState.value) { meme ->
+                    MemeThumbnail(meme = meme, onClick = {
+                        // Otan pataei o xristis: grafoume to imagePath sto clipboard h to sthn keim el?
+                        // P.x. kanoume intent copy to clipboard, ala edo apla to file μεταφέρουμε.
+                        // Kathe IME kalei commitText me to URI string
+                        viewModel.setSearchQuery("") // καθαρίζουμε
+                    }) {
+                        // se service/IME tha το διαχειριστούμε
+                    }
                 }
             }
         }
+    }
+}
 
-        confirmDelete?.let { meme ->
-            AlertDialog(
-                onDismissRequest = { confirmDelete = null },
-                title = { Text("Delete meme?") },
-                text = { Text("Are you sure you want to delete this meme?") },
-                confirmButton = {
-                    TextButton(onClick = {
-                        viewModel.deleteMeme(meme)
-                        confirmDelete = null
-                    }) { Text("Yes") }
-                },
-                dismissButton = {
-                    TextButton(onClick = { confirmDelete = null }) { Text("No") }
-                }
-            )
-        }
+@Composable
+fun MemeThumbnail(
+    meme: Meme,
+    onClick: (Uri) -> Unit = {},
+    onTemporary: () -> Unit = {}
+) {
+    // Coil painter
+    val painter = rememberAsyncImagePainter(model = Uri.parse(meme.imagePath))
+
+    Card(
+        modifier = Modifier
+            .size(80.dp)
+            .clickable {
+                onClick(Uri.parse(meme.imagePath))
+            },
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Image(
+            painter = painter,
+            contentDescription = "Meme thumbnail",
+            modifier = Modifier.size(80.dp)
+        )
     }
 }

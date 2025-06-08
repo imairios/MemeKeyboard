@@ -1,29 +1,24 @@
 package com.example.memekeyboard.data
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+class MemeRepository(private val dao: MemeDao) {
 
-class MemeRepository(private val memeDao: MemeDao) {
+    /** Get *all* memes. */
+    suspend fun getAllMemes(): List<Meme> =
+        dao.getAllMemes()
 
-    suspend fun insertMeme(meme: Meme) {
-        withContext(Dispatchers.IO) {
-            memeDao.insertMeme(meme)
-        }
-    }
+    /** Search the DB for any meme whose tags string contains `search`. */
+    suspend fun getMemesByTags(search: String): List<Meme> =
+        dao.getMemesByTags(search)
 
-    suspend fun getAllMemes(): List<Meme> {
-        return withContext(Dispatchers.IO) {
-            memeDao.getAllMemes()
-        }
-    }
+    /** (NEW) Search the DB for any meme whose tags string contains exactly one tag. */
+    suspend fun getMemesByTag(tag: String): List<Meme> =
+        dao.getMemesByTags(tag)
 
-    suspend fun searchMemesByTag(query: String): List<Meme> {
-        return withContext(Dispatchers.IO) {
-            memeDao.searchMemesByTag(query)
-        }
-    }
+    /** Insert a new meme. */
+    suspend fun insertMeme(meme: Meme) =
+        dao.insertMeme(meme)
 
-    suspend fun deleteMeme(meme: Meme) {
-        memeDao.deleteMeme(meme)
-    }
+    /** Delete an existing meme. */
+    suspend fun deleteMeme(meme: Meme) =
+        dao.deleteMeme(meme)
 }
