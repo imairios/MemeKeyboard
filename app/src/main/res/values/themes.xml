@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <style name="Theme.MemeKeyboard" parent="android:Theme.Material.Light.NoActionBar" />
+    <!--
+      “AppTheme” (under the name MyTheme.Default) simply refers to the style
+      you declared as Theme.MemeKeyboard in styles.xml.
+      This is the theme that Android applies by default to your application (and its Activities).
+    -->
+    <style name="MyTheme.Default" parent="Theme.MemeKeyboard">
+        <!-- You can override additional attributes here if needed,
+             but nothing is required just to “link” the style to your app. -->
+    </style>
 </resources>

@@ -7,9 +7,17 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.lifecycle.lifecycleScope
 import androidx.room.Room
+import com.example.memekeyboard.data.DatabaseProvider
 import com.example.memekeyboard.data.Meme
 import com.example.memekeyboard.data.MemeDatabase
 import com.example.memekeyboard.data.MemeRepository
@@ -17,77 +25,87 @@ import com.example.memekeyboard.ui.MainScreen
 import com.example.memekeyboard.ui.theme.MemeKeyboardTheme
 import com.example.memekeyboard.viewmodel.MemeViewModel
 import com.example.memekeyboard.viewmodel.MemeViewModelFactory
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
+    // 1) Δημιουργία ViewModel με lazy
     private val memeViewModel: MemeViewModel by lazy {
-        val db = Room.databaseBuilder(
-            applicationContext,
-            MemeDatabase::class.java, "meme-database"
-        ).build()
+        val db = DatabaseProvider.getDatabase(applicationContext);
+
         val repository = MemeRepository(db.memeDao())
         MemeViewModelFactory(repository).create(MemeViewModel::class.java)
     }
 
     private lateinit var pickImageLauncher: ActivityResultLauncher<String>
-    private val pendingImageUri = mutableStateOf<Uri?>(null)
-    private val showTagDialog = mutableStateOf(false)
-    private val tagInput = mutableStateOf("")
+    private var pendingImageUri by mutableStateOf<Uri?>(null)
+    private var showTagDialog by mutableStateOf(false)
+    private var tagInput by mutableStateOf("")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
+        // 2) Ορισμός του launcher για επιλογή εικόνας (ActivityResult API)
         pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
             uri?.let {
-                pendingImageUri.value = it
-                showTagDialog.value = true
+                pendingImageUri = it
+                showTagDialog = true
             }
         }
 
         setContent {
             MemeKeyboardTheme {
-
-                if (showTagDialog.value && pendingImageUri.value != null) {
-                    androidx.compose.material3.AlertDialog(
+                // 3) Αν πρέπει να δείξουμε διάλογο για tags
+                if (showTagDialog && pendingImageUri != null) {
+                    AlertDialog(
                         onDismissRequest = {
-                            showTagDialog.value = false
-                            pendingImageUri.value = null
-                            tagInput.value = ""
+                            showTagDialog = false
+                            pendingImageUri = null
+                            tagInput = ""
+                        },
+                        title = {
+                            Text("Add Tags")
+                        },
+                        text = {
+                            OutlinedTextField(
+                                value = tagInput,
+                                onValueChange = { tagInput = it },
+                                label = { Text("Tags (comma-separated)") }
+                            )
                         },
                         confirmButton = {
-                            androidx.compose.material3.TextButton(onClick = {
-                                val tags = tagInput.value.ifBlank { "untagged" }
+                            TextButton(onClick = {
+                                // Όταν πατάμε Save:
+                                val tags = tagInput.ifBlank { "untagged" }
+                                // Καλούμε το ViewModel να κάνει insert
                                 memeViewModel.insertMeme(
-                                    Meme(imagePath = pendingImageUri.value.toString(), tags = tags)
+                                    Meme(
+                                        imagePath = pendingImageUri.toString(),
+                                        tags = tags
+                                    )
                                 )
-                                showTagDialog.value = false
-                                pendingImageUri.value = null
-                                tagInput.value = ""
+                                // Κλείνουμε τον διάλογο
+                                showTagDialog = false
+                                pendingImageUri = null
+                                tagInput = ""
                             }) {
-                                androidx.compose.material3.Text("Save")
+                                Text("Save")
                             }
                         },
                         dismissButton = {
-                            androidx.compose.material3.TextButton(onClick = {
-                                showTagDialog.value = false
-                                pendingImageUri.value = null
-                                tagInput.value = ""
+                            TextButton(onClick = {
+                                showTagDialog = false
+                                pendingImageUri = null
+                                tagInput = ""
                             }) {
-                                androidx.compose.material3.Text("Cancel")
+                                Text("Cancel")
                             }
-                        },
-                        title = { androidx.compose.material3.Text("Add Tags") },
-                        text = {
-                            androidx.compose.material3.OutlinedTextField(
-                                value = tagInput.value,
-                                onValueChange = { tagInput.value = it },
-                                label = { androidx.compose.material3.Text("Tags (comma-separated)") }
-                            )
                         }
                     )
                 }
 
+                // 4) Καλούμε το MainScreen, περνώντας viewModel & onPickImage
                 MainScreen(
                     viewModel = memeViewModel,
                     onPickImage = { pickImageLauncher.launch("image/*") }
