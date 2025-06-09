@@ -8,24 +8,18 @@
     android:background="@android:color/darker_gray"
     android:padding="4dp">
 
-    <!-- =========================
-         1) Search bar
-         ========================= -->
-    <EditText
+    <!-- Search bar (fake input) -->
+    <TextView
         android:id="@+id/search_input_fake"
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:background="#FFFFFF"
         android:padding="8dp"
-        android:hint="Search by tag"
         android:textColor="#000000"
         android:textSize="16sp"
-        android:inputType="text" />
+        android:hint="Search by tag" />
 
-
-    <!-- =========================
-         2) ADD MEME button
-         ========================= -->
+    <!-- ADD MEME button -->
     <Button
         android:id="@+id/btn_add_meme"
         android:layout_width="match_parent"
@@ -34,11 +28,7 @@
         android:text="+ Add Meme"
         android:textSize="16sp" />
 
-    <!-- =========================
-         3) RecyclerView of thumbnails
-         ========================= -->
-
-    <!-- RecyclerView of thumbnails -->
+    <!-- Meme thumbnails -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/meme_recycler_view"
         android:layout_width="match_parent"
@@ -46,195 +36,22 @@
         android:background="#FF0000"
         android:paddingTop="4dp"/>
 
-    <!-- =========================
-         4) Keyboard layers container (FrameLayout)
-         ========================= -->
+    <!-- Keyboard container -->
     <FrameLayout
         android:id="@+id/keyboard_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp">
 
-        <!-- ==== Letters Layer (visible) ==== -->
-        <LinearLayout
-            android:id="@+id/keyboard_letters"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:visibility="visible">
+        <!-- Letters -->
+        <include layout="@layout/keyboard_letters_layer" />
 
-            <!-- Row 1: Q–P -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <Button style="@style/KeyboardKey" android:id="@+id/key_q" android:text="q"/>
-                <Button style="@style/KeyboardKey" android:id="@+id/key_w" android:text="w"/>
-                <Button style="@style/KeyboardKey" android:id="@+id/key_e" android:text="e"/>
-                <Button style="@style/KeyboardKey" android:id="@+id/key_r" android:text="r"/>
-                <Button style="@style/KeyboardKey" android:id="@+id/key_t" android:text="t"/>
-                <Button style="@style/KeyboardKey" android:id="@+id/key_y" android:text="y"/>
-                <Button style="@style/KeyboardKey" android:id="@+id/key_u" android:text="u"/>
-                <Button style="@style/KeyboardKey" android:id="@+id/key_i" android:text="i"/>
-                <Button style="@style/KeyboardKey" android:id="@+id/key_o" android:text="o"/>
-                <Button style="@style/KeyboardKey" android:id="@+id/key_p" android:text="p"/>
-            </LinearLayout>
+        <!-- Numbers -->
+        <include layout="@layout/keyboard_numbers_layer" />
 
-            <!-- Row 2: A–L (slightly indented) -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginStart="16dp">
-                <Button style="@style/KeyboardKey" android:id="@+id/key_a" android:text="a"/>
-                <Button style="@style/KeyboardKey" android:id="@+id/key_s" android:text="s"/>
-                <Button style="@style/KeyboardKey" android:id="@+id/key_d" android:text="d"/>
-                <Button style="@style/KeyboardKey" android:id="@+id/key_f" android:text="f"/>
-                <Button style="@style/KeyboardKey" android:id="@+id/key_g" android:text="g"/>
-                <Button style="@style/KeyboardKey" android:id="@+id/key_h" android:text="h"/>
-                <Button style="@style/KeyboardKey" android:id="@+id/key_j" android:text="j"/>
-                <Button style="@style/KeyboardKey" android:id="@+id/key_k" android:text="k"/>
-                <Button style="@style/KeyboardKey" android:id="@+id/key_l" android:text="l"/>
-            </LinearLayout>
+        <!-- Symbols -->
+        <include layout="@layout/keyboard_symbols_layer" />
 
-            <!-- Row 3: Caps, Z–M, Delete, 123, +*# -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <Button
-                    style="@style/KeyboardKey"
-                    android:id="@+id/key_caps"
-                    android:text="⇧"/>
-
-                <Button style="@style/KeyboardKey" android:id="@+id/key_z" android:text="z"/>
-                <Button style="@style/KeyboardKey" android:id="@+id/key_x" android:text="x"/>
-                <Button style="@style/KeyboardKey" android:id="@+id/key_c" android:text="c"/>
-                <Button style="@style/KeyboardKey" android:id="@+id/key_v" android:text="v"/>
-                <Button style="@style/KeyboardKey" android:id="@+id/key_b" android:text="b"/>
-                <Button style="@style/KeyboardKey" android:id="@+id/key_n" android:text="n"/>
-                <Button style="@style/KeyboardKey" android:id="@+id/key_m" android:text="m"/>
-
-                <Button
-                    style="@style/KeyboardKey"
-                    android:id="@+id/key_delete"
-                    android:text="⌫"/>
-
-                <Button
-                    style="@style/KeyboardKey"
-                    android:id="@+id/key_to_numbers"
-                    android:text="123"/>
-
-                <Button
-                    style="@style/KeyboardKey"
-                    android:id="@+id/key_to_symbols"
-                    android:text="+*#"/>
-            </LinearLayout>
-
-            <!-- Row 4: Space + Enter -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <Button
-                    android:id="@+id/key_space"
-                    android:layout_width="0dp"
-                    android:layout_height="48dp"
-                    android:layout_weight="5"
-                    android:text="SPACE"/>
-                <Button
-                    android:id="@+id/key_enter"
-                    android:layout_width="0dp"
-                    android:layout_height="48dp"
-                    android:layout_weight="2"
-                    android:text="OK"/>
-            </LinearLayout>
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/keyboard_numbers"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:visibility="gone">
-
-            <!-- Row: 1–0 -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <Button style="@style/KeyboardKey" android:id="@+id/key_1" android:text="1"/>
-                <Button style="@style/KeyboardKey" android:id="@+id/key_2" android:text="2"/>
-                <Button style="@style/KeyboardKey" android:id="@+id/key_3" android:text="3"/>
-                <Button style="@style/KeyboardKey" android:id="@+id/key_4" android:text="4"/>
-                <Button style="@style/KeyboardKey" android:id="@+id/key_5" android:text="5"/>
-                <Button style="@style/KeyboardKey" android:id="@+id/key_6" android:text="6"/>
-                <Button style="@style/KeyboardKey" android:id="@+id/key_7" android:text="7"/>
-                <Button style="@style/KeyboardKey" android:id="@+id/key_8" android:text="8"/>
-                <Button style="@style/KeyboardKey" android:id="@+id/key_9" android:text="9"/>
-                <Button style="@style/KeyboardKey" android:id="@+id/key_0" android:text="0"/>
-            </LinearLayout>
-
-            <!-- Row: Back to ABC + Delete -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <Button
-                    android:id="@+id/key_to_letters"
-                    android:layout_width="0dp"
-                    android:layout_height="48dp"
-                    android:layout_weight="2"
-                    android:text="ABC"/>
-                <Button
-                    style="@style/KeyboardKey"
-                    android:id="@+id/key_delete_num"
-                    android:text="⌫"/>
-            </LinearLayout>
-        </LinearLayout>
-
-
-        <LinearLayout
-            android:id="@+id/keyboard_symbols"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:visibility="gone">
-
-            <!-- Row: 10 symbols -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <Button style="@style/KeyboardKey" android:id="@+id/key_sym_1" android:text="."/>
-                <Button style="@style/KeyboardKey" android:id="@+id/key_sym_2" android:text=","/>
-                <Button style="@style/KeyboardKey" android:id="@+id/key_sym_3" android:text="!"/>
-                <Button style="@style/KeyboardKey" android:id="@+id/key_sym_4" android:text="?"/>
-                <Button style="@style/KeyboardKey" android:id="@+id/key_sym_5" android:text="@"/>
-                <Button style="@style/KeyboardKey" android:id="@+id/key_sym_6" android:text="#"/>
-                <Button style="@style/KeyboardKey" android:id="@+id/key_sym_7" android:text="$"/>
-                <Button style="@style/KeyboardKey" android:id="@+id/key_sym_8" android:text="%"/>
-                <Button style="@style/KeyboardKey" android:id="@+id/key_sym_9" android:text="&amp;"/>
-                <Button style="@style/KeyboardKey" android:id="@+id/key_sym_10" android:text="*"/>
-            </LinearLayout>
-
-            <!-- Row: Back to ABC + Delete -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <Button
-                    android:id="@+id/key_to_letters_from_sym"
-                    android:layout_width="0dp"
-                    android:layout_height="48dp"
-                    android:layout_weight="2"
-                    android:text="ABC"/>
-                <Button
-                    style="@style/KeyboardKey"
-                    android:id="@+id/key_delete_sym"
-                    android:text="⌫"/>
-            </LinearLayout>
-        </LinearLayout>
 
     </FrameLayout>
 </LinearLayout>

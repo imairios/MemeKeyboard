@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/keyboard_letters"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:visibility="visible">
+
+    <!-- Row 1: Q–P -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <Button style="@style/KeyboardKey" android:id="@+id/key_q" android:text="q"/>
+        <Button style="@style/KeyboardKey" android:id="@+id/key_w" android:text="w"/>
+        <Button style="@style/KeyboardKey" android:id="@+id/key_e" android:text="e"/>
+        <Button style="@style/KeyboardKey" android:id="@+id/key_r" android:text="r"/>
+        <Button style="@style/KeyboardKey" android:id="@+id/key_t" android:text="t"/>
+        <Button style="@style/KeyboardKey" android:id="@+id/key_y" android:text="y"/>
+        <Button style="@style/KeyboardKey" android:id="@+id/key_u" android:text="u"/>
+        <Button style="@style/KeyboardKey" android:id="@+id/key_i" android:text="i"/>
+        <Button style="@style/KeyboardKey" android:id="@+id/key_o" android:text="o"/>
+        <Button style="@style/KeyboardKey" android:id="@+id/key_p" android:text="p"/>
+    </LinearLayout>
+
+    <!-- Row 2: A–L -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginStart="16dp">
+        <Button style="@style/KeyboardKey" android:id="@+id/key_a" android:text="a"/>
+        <Button style="@style/KeyboardKey" android:id="@+id/key_s" android:text="s"/>
+        <Button style="@style/KeyboardKey" android:id="@+id/key_d" android:text="d"/>
+        <Button style="@style/KeyboardKey" android:id="@+id/key_f" android:text="f"/>
+        <Button style="@style/KeyboardKey" android:id="@+id/key_g" android:text="g"/>
+        <Button style="@style/KeyboardKey" android:id="@+id/key_h" android:text="h"/>
+        <Button style="@style/KeyboardKey" android:id="@+id/key_j" android:text="j"/>
+        <Button style="@style/KeyboardKey" android:id="@+id/key_k" android:text="k"/>
+        <Button style="@style/KeyboardKey" android:id="@+id/key_l" android:text="l"/>
+    </LinearLayout>
+
+    <!-- Row 3: Caps, Z–M, Delete, 123, +*# -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <Button style="@style/KeyboardKey" android:id="@+id/key_caps" android:text="⇧"/>
+        <Button style="@style/KeyboardKey" android:id="@+id/key_z" android:text="z"/>
+        <Button style="@style/KeyboardKey" android:id="@+id/key_x" android:text="x"/>
+        <Button style="@style/KeyboardKey" android:id="@+id/key_c" android:text="c"/>
+        <Button style="@style/KeyboardKey" android:id="@+id/key_v" android:text="v"/>
+        <Button style="@style/KeyboardKey" android:id="@+id/key_b" android:text="b"/>
+        <Button style="@style/KeyboardKey" android:id="@+id/key_n" android:text="n"/>
+        <Button style="@style/KeyboardKey" android:id="@+id/key_m" android:text="m"/>
+        <Button style="@style/KeyboardKey" android:id="@+id/key_delete" android:text="⌫"/>
+        <Button style="@style/KeyboardKey" android:id="@+id/key_to_numbers" android:text="123"/>
+        <Button style="@style/KeyboardKey" android:id="@+id/key_to_symbols" android:text="+*#"/>
+    </LinearLayout>
+
+    <!-- Row 4: Space + Enter -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <Button
+            android:id="@+id/key_space"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="5"
+            android:text="SPACE"/>
+        <Button
+            android:id="@+id/key_enter"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="2"
+            android:text="OK"/>
+        <Button
+            android:id="@+id/btn_settings"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Settings" />
+
+        <Button
+            android:id="@+id/btn_switch_language"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🌐" />
+    </LinearLayout>
+</LinearLayout>

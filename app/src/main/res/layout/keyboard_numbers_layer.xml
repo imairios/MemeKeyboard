@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/keyboard_numbers"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:visibility="gone">
+
+    <!-- Row: 1–0 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <Button style="@style/KeyboardKey" android:id="@+id/key_1" android:text="1"/>
+        <Button style="@style/KeyboardKey" android:id="@+id/key_2" android:text="2"/>
+        <Button style="@style/KeyboardKey" android:id="@+id/key_3" android:text="3"/>
+        <Button style="@style/KeyboardKey" android:id="@+id/key_4" android:text="4"/>
+        <Button style="@style/KeyboardKey" android:id="@+id/key_5" android:text="5"/>
+        <Button style="@style/KeyboardKey" android:id="@+id/key_6" android:text="6"/>
+        <Button style="@style/KeyboardKey" android:id="@+id/key_7" android:text="7"/>
+        <Button style="@style/KeyboardKey" android:id="@+id/key_8" android:text="8"/>
+        <Button style="@style/KeyboardKey" android:id="@+id/key_9" android:text="9"/>
+        <Button style="@style/KeyboardKey" android:id="@+id/key_0" android:text="0"/>
+    </LinearLayout>
+
+    <!-- Row: Back to ABC + Delete -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <Button
+            android:id="@+id/key_to_letters"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="2"
+            android:text="ABC"/>
+        <Button
+            style="@style/KeyboardKey"
+            android:id="@+id/key_delete_num"
+            android:text="⌫"/>
+    </LinearLayout>
+</LinearLayout>
