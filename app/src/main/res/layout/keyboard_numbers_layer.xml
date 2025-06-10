@@ -5,24 +5,26 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:visibility="gone">
+    android:visibility="gone"
+    android:padding="4dp">
 
     <!-- Row: 1–0 -->
     <androidx.cardview.widget.CardView
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    card:cardElevation="2dp"
-    card:cardCornerRadius="8dp"
-    android:layout_marginVertical="2dp">
-    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center"
-        android:paddingVertical="4dp"
-        android:divider="?android:attr/dividerVertical"
-        android:showDividers="middle"
-        android:dividerPadding="4dp">
+        card:cardCornerRadius="12dp"
+        card:cardElevation="2dp"
+        android:layout_marginVertical="4dp">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:paddingVertical="6dp"
+            android:divider="?android:attr/dividerVertical"
+            android:showDividers="middle"
+            android:dividerPadding="6dp">
+
         <Button style="@style/KeyboardKey" android:id="@+id/key_1" android:text="1"/>
         <Button style="@style/KeyboardKey" android:id="@+id/key_2" android:text="2"/>
         <Button style="@style/KeyboardKey" android:id="@+id/key_3" android:text="3"/>
@@ -40,18 +42,19 @@
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        card:cardCornerRadius="12dp"
         card:cardElevation="2dp"
-        card:cardCornerRadius="8dp"
-        android:layout_marginVertical="2dp">
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center"
-        android:paddingVertical="4dp"
-        android:divider="?android:attr/dividerVertical"
-        android:showDividers="middle"
-        android:dividerPadding="4dp">
+        android:layout_marginVertical="4dp">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:paddingVertical="6dp"
+            android:divider="?android:attr/dividerVertical"
+            android:showDividers="middle"
+            android:dividerPadding="6dp">
+
         <Button
             android:id="@+id/key_to_letters"
             android:layout_width="0dp"

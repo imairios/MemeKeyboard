@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center"
+    android:padding="4dp">
+
+    <Button android:id="@+id/key_to_numbers" style="@style/KeyboardKey" android:text="123" />
+    <Button android:id="@+id/key_to_symbols" style="@style/KeyboardKey" android:text="+*#" />
+    <Button android:id="@+id/key_space" style="@style/KeyboardKey" android:layout_weight="2" android:text="SPACE" />
+    <Button android:id="@+id/key_enter" style="@style/KeyboardKey" android:text="⏎" />
+    <Button android:id="@+id/btn_settings" style="@style/KeyboardKey" android:text="⚙" />
+    <Button android:id="@+id/btn_switch_language" style="@style/KeyboardKey" android:text="🌐" />
+</LinearLayout>

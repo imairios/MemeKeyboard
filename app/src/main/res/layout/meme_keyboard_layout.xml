@@ -1,57 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/meme_layout_root"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@android:color/darker_gray"
-    android:padding="4dp">
+    android:background="#F2F2F2"
+    android:padding="8dp">
 
-    <!-- Search bar (fake input) -->
-    <TextView
-        android:id="@+id/search_input_fake"
+    <!-- Main scrolling/content area -->
+    <LinearLayout
+        android:id="@+id/meme_content_area"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:background="#FFFFFF"
-        android:padding="8dp"
-        android:textColor="#000000"
-        android:textSize="16sp"
-        android:hint="Search by tag" />
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
 
-    <!-- ADD MEME button -->
-    <Button
-        android:id="@+id/btn_add_meme"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:layout_marginTop="4dp"
-        android:text="+ Add Meme"
-        android:textSize="16sp" />
+        <!-- Search bar -->
+        <TextView
+            android:id="@+id/search_input_fake"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:background="@drawable/search_box_background"
+            android:padding="8dp"
+            android:textColor="#000000"
+            android:textSize="16sp"
+            android:hint="Search by tag" />
 
-    <!-- Meme thumbnails -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/meme_recycler_view"
-        android:layout_width="match_parent"
-        android:layout_height="80dp"
-        android:background="#FF0000"
-        android:paddingTop="4dp"/>
+        <!-- Add Meme button -->
+        <Button
+            android:id="@+id/btn_add_meme"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="6dp"
+            android:text="+ Add Meme"
+            android:textSize="16sp"
+            android:backgroundTint="#E0E0E0"
+            android:textColor="#000000" />
 
-    <!-- Keyboard container -->
-    <FrameLayout
+        <!-- Meme thumbnails -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/meme_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="#ECECEC"
+            android:paddingTop="4dp"/>
+    </LinearLayout>
+
+    <!-- Custom keyboard pinned at the bottom -->
+    <LinearLayout
         android:id="@+id/keyboard_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp">
+        android:orientation="vertical"
+        android:background="@android:color/white"
+        android:paddingTop="4dp">
 
-        <!-- Letters -->
         <include layout="@layout/keyboard_letters_layer" />
-
-        <!-- Numbers -->
+        <include layout="@layout/keyboard_letters_footer"/>
         <include layout="@layout/keyboard_numbers_layer" />
-
-        <!-- Symbols -->
         <include layout="@layout/keyboard_symbols_layer" />
-
-
-    </FrameLayout>
+    </LinearLayout>
 </LinearLayout>
