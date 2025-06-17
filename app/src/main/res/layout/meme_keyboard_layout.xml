@@ -15,22 +15,6 @@
         android:layout_weight="1"
         android:orientation="vertical">
 
-        <!-- Search bar -->
-<!--        <EditText-->
-<!--            android:id="@+id/search_input_fake"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="40dp"-->
-<!--            android:background="@drawable/search_box_background"-->
-<!--            android:padding="8dp"-->
-<!--            android:textColor="#000000"-->
-<!--            android:textSize="16sp"-->
-<!--            android:hint="Search by tag"-->
-<!--            android:cursorVisible="true"-->
-<!--            android:focusable="true"-->
-<!--            android:focusableInTouchMode="true"-->
-<!--            android:inputType="text" />-->
-
-
         <!-- Add Meme button -->
         <Button
             android:id="@+id/btn_add_meme"
@@ -47,19 +31,39 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="🔍 Search Memes" />
-
-
-        <!-- Meme thumbnails -->
-<!--        <androidx.recyclerview.widget.RecyclerView-->
-<!--            android:id="@+id/meme_recycler_view"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="0dp"-->
-<!--            android:layout_weight="1"-->
-<!--            android:background="#ECECEC"-->
-<!--            android:paddingTop="4dp"/>-->
     </LinearLayout>
 
-    <!-- Custom keyboard pinned at the bottom -->
+    <!-- Inline search overlay above keyboard -->
+    <LinearLayout
+        android:id="@+id/search_bar_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#FFFFFF"
+        android:visibility="gone"
+        android:padding="8dp">
+
+        <EditText
+            android:id="@+id/edit_search"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:hint="Search memes..."
+            android:background="@android:drawable/editbox_background"
+            android:padding="10dp"
+            android:inputType="text"
+            android:textColor="#000000"
+            android:textSize="16sp" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/search_recycler"
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
+            android:orientation="horizontal"
+            android:paddingTop="4dp"
+            android:background="#EEEEEE" />
+    </LinearLayout>
+
+    <!-- Keyboard container -->
     <LinearLayout
         android:id="@+id/keyboard_container"
         android:layout_width="match_parent"

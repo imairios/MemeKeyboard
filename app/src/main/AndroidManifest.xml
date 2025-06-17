@@ -1,13 +1,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.example.memekeyboard">
+
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
 
     <application
         android:allowBackup="true"
         android:label="@string/app_name"
-        android:theme="@style/Theme.MemeKeyboard">   <!-- Use MemeKeyboard as the default -->
+        android:theme="@style/Theme.MemeKeyboard">
 
-        <!-- 1) Your IME service (keyboard) -->
+        <!-- Your keyboard service -->
         <service
             android:name=".MemeKeyboardService"
             android:permission="android.permission.BIND_INPUT_METHOD"
@@ -20,6 +22,7 @@
                 android:resource="@xml/input_method" />
         </service>
 
+        <!-- Transparent meme editor activity -->
         <activity
             android:name=".TransparentAddMemeActivity"
             android:exported="true"
@@ -33,9 +36,9 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
         </activity>
 
+        <!-- ✅ Search Overlay activity -->
         <activity
             android:name=".SearchOverlayActivity"
             android:theme="@style/Theme.MemeKeyboard.Transparent"
@@ -43,9 +46,10 @@
             android:excludeFromRecents="true"
             android:taskAffinity=""
             android:exported="true"
-            android:windowSoftInputMode="adjustResize|stateVisible" />
+            android:windowSoftInputMode="adjustResize|stateVisible"
+            tools:ignore="DuplicateActivity" />
 
-
+        <!-- File provider -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.provider"
@@ -56,8 +60,6 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-
     </application>
-
 
 </manifest>
