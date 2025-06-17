@@ -1,6 +1,5 @@
 package com.example.memekeyboard
 
-import android.app.AlertDialog
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -18,7 +17,6 @@ import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import com.example.memekeyboard.data.Meme
 import java.io.File
-import kotlin.coroutines.Continuation
 
 class MemeThumbnailAdapter(
     private var memes: List<Meme>,
@@ -28,7 +26,7 @@ class MemeThumbnailAdapter(
 
     inner class MemeVH(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val ivThumbnail: ImageView = itemView.findViewById(R.id.iv_thumbnail)
-        val tvTags: TextView      = itemView.findViewById(R.id.tv_tags)
+        val tvTags: TextView = itemView.findViewById(R.id.tv_tags)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MemeVH {
@@ -39,14 +37,18 @@ class MemeThumbnailAdapter(
 
     override fun onBindViewHolder(holder: MemeVH, position: Int) {
         val meme = memes[position]
-        Log.d("ADAPTER MEMES", "Binding meme at $position: ${meme.imagePath}")
-        holder.ivThumbnail.load(File(meme.imagePath)) { crossfade(true) }
+        Log.d("ADAPTER_MEMES", "Binding meme at $position: ${meme.imagePath}")
+
+        val file = File(meme.imagePath)
+        holder.ivThumbnail.load(file) {
+            crossfade(true)
+            error(android.R.drawable.ic_menu_report_image)
+        }
 
         holder.tvTags.text = meme.tags
 
         holder.itemView.setOnClickListener {
             val context = holder.itemView.context
-            val file = File(meme.imagePath)
 
             if (!file.absolutePath.startsWith(context.filesDir.absolutePath)) {
                 Toast.makeText(context, "File is outside allowed directory", Toast.LENGTH_SHORT).show()
@@ -58,13 +60,11 @@ class MemeThumbnailAdapter(
                 "${context.packageName}.provider",
                 file
             )
-
             onMemeClick(uri)
         }
 
-
         holder.itemView.setOnLongClickListener {
-            val context = it.context
+            val context = holder.itemView.context
             val popup = PopupMenu(context, holder.itemView)
             popup.menuInflater.inflate(R.menu.meme_options_menu, popup.menu)
 
@@ -84,12 +84,9 @@ class MemeThumbnailAdapter(
                     else -> false
                 }
             }
-
             popup.show()
-            true // <- This tells Android that the long click was handled
+            true
         }
-
-
     }
 
     override fun getItemCount(): Int = memes.size
@@ -98,5 +95,4 @@ class MemeThumbnailAdapter(
         memes = newList
         notifyDataSetChanged()
     }
-
 }

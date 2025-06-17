@@ -16,15 +16,20 @@
         android:orientation="vertical">
 
         <!-- Search bar -->
-        <TextView
-            android:id="@+id/search_input_fake"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:background="@drawable/search_box_background"
-            android:padding="8dp"
-            android:textColor="#000000"
-            android:textSize="16sp"
-            android:hint="Search by tag" />
+<!--        <EditText-->
+<!--            android:id="@+id/search_input_fake"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="40dp"-->
+<!--            android:background="@drawable/search_box_background"-->
+<!--            android:padding="8dp"-->
+<!--            android:textColor="#000000"-->
+<!--            android:textSize="16sp"-->
+<!--            android:hint="Search by tag"-->
+<!--            android:cursorVisible="true"-->
+<!--            android:focusable="true"-->
+<!--            android:focusableInTouchMode="true"-->
+<!--            android:inputType="text" />-->
+
 
         <!-- Add Meme button -->
         <Button
@@ -37,14 +42,21 @@
             android:backgroundTint="#E0E0E0"
             android:textColor="#000000" />
 
-        <!-- Meme thumbnails -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/meme_recycler_view"
+        <Button
+            android:id="@+id/btn_open_search"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:background="#ECECEC"
-            android:paddingTop="4dp"/>
+            android:layout_height="wrap_content"
+            android:text="🔍 Search Memes" />
+
+
+        <!-- Meme thumbnails -->
+<!--        <androidx.recyclerview.widget.RecyclerView-->
+<!--            android:id="@+id/meme_recycler_view"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="0dp"-->
+<!--            android:layout_weight="1"-->
+<!--            android:background="#ECECEC"-->
+<!--            android:paddingTop="4dp"/>-->
     </LinearLayout>
 
     <!-- Custom keyboard pinned at the bottom -->

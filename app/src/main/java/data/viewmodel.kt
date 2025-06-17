@@ -15,7 +15,6 @@ import kotlinx.coroutines.withContext
 
 class MemeViewModel(private val repository: MemeRepository) : ViewModel() {
 
-    // 1) Το κείμενο της αναζήτησης (π.χ. "funny,cat")
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery
 
@@ -25,64 +24,38 @@ class MemeViewModel(private val repository: MemeRepository) : ViewModel() {
     init {
         viewModelScope.launch {
             _searchQuery.collectLatest { query ->
-                if (query.isBlank()) {
-                    withContext(Dispatchers.IO) {
-                        val all = repository.getAllMemes()
-                        Log.d("VM_DEBUG", "Fetched ALL memes: ${all.size}")
-                        _filteredMemes.value = all
+                withContext(Dispatchers.IO) {
+                    val result = if (query.isBlank()) {
+                        repository.getAllMemes()
+                    } else {
+                        repository.searchMemes(query)
                     }
-                } else {
-                    withContext(Dispatchers.IO) {
-                        val tags = query.split(",").map { it.trim().lowercase() }
-                            .filter { it.isNotEmpty() }
-                        val resultSet = mutableSetOf<Meme>()
-                        for (tag in tags) {
-                            val found = repository.getMemesByTags(tag)
-                            Log.d("VM_DEBUG", "Found ${found.size} memes for tag '$tag'")
-                            resultSet.addAll(found)
-                        }
-                        _filteredMemes.value = resultSet.toList()
-                    }
+                    Log.d("VM_DEBUG", "Found ${result.size} memes for query '$query'")
+                    _filteredMemes.value = result
                 }
             }
         }
     }
 
-
-    /** Καλείται όταν θέλουμε να αλλάξουμε το query (π.χ. άγγιγμα κουμπιού στο IME). */
     fun setSearchQuery(newQuery: String) {
         _searchQuery.value = newQuery
     }
 
     fun forceReload() {
-        _searchQuery.value = _searchQuery.value
+        _searchQuery.value = _searchQuery.value // Trigger re-collect
     }
 
-    /** Προστίθεται ένα νέο meme στη βάση, μετά γίνεται refresh. */
     fun insertMeme(meme: Meme) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.insertMeme(meme)
-            // Αν ο χρήστης δεν έχει φιλτράρει (query == ""), μπορούμε να ξαναφορτώσουμε όλα
-            if (_searchQuery.value.isBlank()) {
-                val allMemes = repository.getAllMemes()
-                _filteredMemes.value = allMemes
-            } else {
-                // Αν υπάρχει query, ξαναβάζουμε ίδιο query για να τρέξει ξανά το collectLatest
-                _searchQuery.value = _searchQuery.value
-            }
+            forceReload()
         }
     }
 
-    /** Διαγράφει ένα meme και κάνει ανανέωση. */
     fun deleteMeme(meme: Meme) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.deleteMeme(meme)
-            if (_searchQuery.value.isBlank()) {
-                val allMemes = repository.getAllMemes()
-                _filteredMemes.value = allMemes
-            } else {
-                _searchQuery.value = _searchQuery.value
-            }
+            forceReload()
         }
     }
 }

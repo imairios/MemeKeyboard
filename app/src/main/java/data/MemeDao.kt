@@ -8,15 +8,17 @@ import androidx.room.Query
 
 @Dao
 interface MemeDao {
+
     @Query("SELECT * FROM memes")
     suspend fun getAllMemes(): List<Meme>
-
-    @Query("SELECT * FROM memes WHERE tags LIKE '%' || :search || '%'")
-    suspend fun getMemesByTags(search: String): List<Meme>
 
     @Insert
     suspend fun insertMeme(meme: Meme)
 
     @Delete
     suspend fun deleteMeme(meme: Meme)
+
+    // 🔍 Add this method for searching
+    @Query("SELECT * FROM memes WHERE tags LIKE '%' || :query || '%'")
+    suspend fun searchMemes(query: String): List<Meme>
 }

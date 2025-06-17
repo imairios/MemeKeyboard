@@ -81,10 +81,12 @@ class TransparentAddMemeActivity : ComponentActivity() {
                             val savedPath = copyUriToInternalStorage(chosenUri)
                             memeViewModel.insertMeme(
                                 Meme(
-                                    imagePath = savedPath,  // ✅ LOCAL FILE PATH
+                                    name = "meme_${System.currentTimeMillis()}",
+                                    imagePath = savedPath,
                                     tags = finalTags
                                 )
                             )
+
                         }
 
                         // Reset and finish

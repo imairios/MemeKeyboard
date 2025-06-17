@@ -98,6 +98,7 @@ class AddMemeActivity : ComponentActivity() {
                             pendingUri?.let { chosenUri ->
                                 memeViewModel.insertMeme(
                                     Meme(
+                                        name = "meme_${System.currentTimeMillis()}", // or derive from URI
                                         imagePath = chosenUri.toString(),
                                         tags = finalTags
                                     )

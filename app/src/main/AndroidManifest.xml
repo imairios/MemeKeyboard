@@ -36,6 +36,16 @@
 
         </activity>
 
+        <activity
+            android:name=".SearchOverlayActivity"
+            android:theme="@style/Theme.MemeKeyboard.Transparent"
+            android:launchMode="singleTop"
+            android:excludeFromRecents="true"
+            android:taskAffinity=""
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize|stateVisible" />
+
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.provider"

@@ -1,263 +1,170 @@
+// MemeKeyboardService.kt
+
 package com.example.memekeyboard
 
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.ClipData
-import android.content.ClipDescription
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
-import android.inputmethodservice.InputMethodService
 import android.net.Uri
 import android.os.Bundle
-import android.provider.Settings
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
-import android.view.inputmethod.EditorInfo
+import android.view.WindowManager
 import android.widget.Button
-import android.widget.CheckBox
-import android.widget.TextView
+import android.widget.EditText
 import android.widget.Toast
 import androidx.core.view.inputmethod.EditorInfoCompat
 import androidx.core.view.inputmethod.InputConnectionCompat
 import androidx.core.view.inputmethod.InputContentInfoCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import android.inputmethodservice.InputMethodService
+import android.content.ClipDescription
+import android.os.Handler
+import android.os.Looper
+import android.widget.PopupWindow
+import android.widget.TextView
 import com.example.memekeyboard.data.DatabaseProvider
-import com.example.memekeyboard.data.Meme
 import com.example.memekeyboard.data.MemeRepository
 import com.example.memekeyboard.viewmodel.MemeViewModel
 import com.example.memekeyboard.viewmodel.MemeViewModelFactory
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.collect
-import java.util.Locale
+import kotlinx.coroutines.flow.collectLatest
+import android.view.MotionEvent
+import android.view.ViewGroup
+
 
 class MemeKeyboardService : InputMethodService() {
 
     private lateinit var rootView: View
-    private var isCaps = false
-    private val searchBuffer = StringBuilder()
-    private var currentLayer = 0
-
-    private lateinit var lettersContainer: View
-    private lateinit var numbersContainer: View
-    private lateinit var symbolsContainer: View
-
-    private lateinit var memeRecycler: RecyclerView
-    private lateinit var memeAdapter: MemeThumbnailAdapter
-
     private lateinit var memeViewModel: MemeViewModel
+    private val serviceScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+    private var searchDialog: AlertDialog? = null
 
-    private val serviceJob = Job()
-    private val serviceScope = CoroutineScope(Dispatchers.Main + serviceJob)
-
-    private lateinit var sharedPreferences: SharedPreferences
-
-    private val selectedLanguagesKey = "selected_languages"
-    private var currentLanguageIndex = 0
-    private var selectedLanguages = listOf("en")
-
-    private val allLanguages = Locale.getAvailableLocales()
-        .map { it.language }
-        .filter { it.isNotEmpty() }
-        .distinct()
-        .sorted()
-
+    @SuppressLint("ClickableViewAccessibility")
     override fun onCreateInputView(): View {
-
-        if (!Settings.canDrawOverlays(applicationContext)) {
-            val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName"))
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            startActivity(intent)
-            Toast.makeText(this, "Please enable overlay permission to use long press menu", Toast.LENGTH_LONG).show()
-        }
-
         rootView = layoutInflater.inflate(R.layout.meme_keyboard_layout, null)
-
-        rootView.findViewById<Button>(R.id.btn_add_meme).setOnClickListener {
-            if (!Settings.canDrawOverlays(applicationContext)) {
-                val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName"))
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                Toast.makeText(this, "Please allow overlay permission", Toast.LENGTH_LONG).show()
-                startActivity(intent)
-                return@setOnClickListener
-            }
-
-            val intent = Intent(this, TransparentAddMemeActivity::class.java)
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            Toast.makeText(this, "Opening meme picker...", Toast.LENGTH_SHORT).show()
-            safeStartActivity(intent)
-        }
 
         val db = DatabaseProvider.getDatabase(applicationContext)
         val repository = MemeRepository(db.memeDao())
         memeViewModel = MemeViewModelFactory(repository).create(MemeViewModel::class.java)
 
-        val fakeSearchBox = rootView.findViewById<TextView>(R.id.search_input_fake)
-        fakeSearchBox.addTextChangedListener(object : TextWatcher {
+        // Setup keyboard keys
+        val keyIds = listOf(
+            R.id.key_q, R.id.key_w, R.id.key_e, R.id.key_r, R.id.key_t, R.id.key_y, R.id.key_u, R.id.key_i, R.id.key_o, R.id.key_p,
+            R.id.key_a, R.id.key_s, R.id.key_d, R.id.key_f, R.id.key_g, R.id.key_h, R.id.key_j, R.id.key_k, R.id.key_l,
+            R.id.key_z, R.id.key_x, R.id.key_c, R.id.key_v, R.id.key_b, R.id.key_n, R.id.key_m,
+            R.id.key_space, R.id.key_enter, R.id.key_delete
+        )
+
+        keyIds.forEach { id ->
+            rootView.findViewById<Button>(id)?.setOnTouchListener { v, event ->
+                val button = v as? Button ?: return@setOnTouchListener false
+                val key = button.text.toString()
+
+                when (event.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        showKeyPreview(button, key)
+                        currentInputConnection.commitText(key, 1)
+                    }
+                    MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                        hideKeyPreview()
+                    }
+                }
+                true // Consume the touch
+            }
+        }
+
+
+        rootView.findViewById<Button>(R.id.btn_add_meme)?.setOnClickListener {
+            val intent = Intent(this, TransparentAddMemeActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            startActivity(intent)
+        }
+
+        rootView.findViewById<Button>(R.id.btn_open_search)?.setOnClickListener {
+            showSearchDialog()
+        }
+
+        return rootView
+    }
+
+//    fun onKeyClicked(view: View) {
+////        val ic = currentInputConnection ?: return
+////        val key = (view as? Button)?.text?.toString() ?: return
+////        Log.d("Keyboard", "Key pressed: $key")
+////
+////        when (view.id) {
+////            R.id.key_space -> ic.commitText(" ", 1)
+////            R.id.key_enter -> ic.sendKeyEvent(android.view.KeyEvent(android.view.KeyEvent.ACTION_DOWN, android.view.KeyEvent.KEYCODE_ENTER))
+////            R.id.key_delete -> ic.deleteSurroundingText(1, 0)
+////            else -> ic.commitText(key, 1)
+////        }
+////    }
+
+    fun onKeyClicked(view: View) {
+        val key = (view as Button).text.toString()
+
+        // Show popup preview
+        showKeyPreview(view, key)
+
+        // Send key to input
+        currentInputConnection.commitText(key, 1)
+
+        // Hide preview after short delay
+        Handler(Looper.getMainLooper()).postDelayed({ hideKeyPreview() }, 150)
+    }
+
+
+    private fun showSearchDialog() {
+        val dialogView = layoutInflater.inflate(R.layout.activity_search_overlay, null)
+
+        val searchInput = dialogView.findViewById<EditText>(R.id.edit_search)
+        val recycler = dialogView.findViewById<RecyclerView>(R.id.search_recycler)
+        recycler.layoutManager = LinearLayoutManager(this, RecyclerView.HORIZONTAL, false)
+
+        val adapter = MemeThumbnailAdapter(
+            emptyList(),
+            onMemeClick = { uri ->
+                commitOrCopy(uri)
+                searchDialog?.dismiss()
+            },
+            onMemeLongClick = {}
+        )
+        recycler.adapter = adapter
+
+        serviceScope.launch {
+            memeViewModel.filteredMemes.collectLatest {
+                adapter.submitList(it)
+            }
+        }
+
+        searchInput.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
-                val query = s.toString()
-                searchBuffer.clear()
-                searchBuffer.append(query)
-                memeViewModel.setSearchQuery(query)
+                memeViewModel.setSearchQuery(s?.toString().orEmpty())
             }
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
 
-        memeRecycler = rootView.findViewById(R.id.meme_recycler_view)
-        memeRecycler.layoutManager = LinearLayoutManager(this, RecyclerView.HORIZONTAL, false)
-        memeAdapter = MemeThumbnailAdapter(
-            emptyList(),
-            onMemeClick = { selectedUri -> commitOrCopy(selectedUri) },
-            onMemeLongClick = { meme -> showLongPressMenu(meme) }
-        )
-        memeRecycler.adapter = memeAdapter
+        searchDialog = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .create()
 
-        lettersContainer = rootView.findViewById(R.id.keyboard_letters)
-        numbersContainer = rootView.findViewById(R.id.keyboard_numbers)
-        symbolsContainer = rootView.findViewById(R.id.keyboard_symbols)
-
-        val fakeBox = fakeSearchBox
-        listOf("q","w","e","r","t","y","u","i","o","p","a","s","d","f","g","h","j","k","l","z","x","c","v","b","n","m").forEach { key ->
-            rootView.findViewById<Button>(resources.getIdentifier("key_$key", "id", packageName))?.setOnClickListener {
-                val ch = if (isCaps) key.uppercase() else key
-                searchBuffer.append(ch)
-                fakeBox.text = searchBuffer.toString()
-                memeViewModel.setSearchQuery(searchBuffer.toString())
-            }
-        }
-
-        rootView.findViewById<Button>(R.id.key_caps).setOnClickListener {
-            isCaps = !isCaps
-            updateKeysCase()
-        }
-
-        rootView.findViewById<Button>(R.id.key_delete).setOnClickListener {
-            if (searchBuffer.isNotEmpty()) {
-                searchBuffer.deleteCharAt(searchBuffer.lastIndex)
-                fakeBox.text = searchBuffer.toString()
-                memeViewModel.setSearchQuery(searchBuffer.toString())
-            }
-        }
-
-        rootView.findViewById<Button>(R.id.key_space).setOnClickListener {
-            searchBuffer.append(" ")
-            fakeBox.text = searchBuffer.toString()
-            memeViewModel.setSearchQuery(searchBuffer.toString())
-        }
-
-        rootView.findViewById<Button>(R.id.key_enter).setOnClickListener {
-            currentInputConnection.commitText(searchBuffer.toString(), 1)
-        }
-
-        rootView.findViewById<Button>(R.id.key_to_numbers).setOnClickListener { switchLayer(1) }
-        rootView.findViewById<Button>(R.id.key_to_symbols).setOnClickListener { switchLayer(2) }
-
-        (1..9).forEach { num ->
-            rootView.findViewById<Button>(resources.getIdentifier("key_$num", "id", packageName))?.setOnClickListener {
-                searchBuffer.append(num)
-                fakeBox.text = searchBuffer.toString()
-                memeViewModel.setSearchQuery(searchBuffer.toString())
-            }
-        }
-        rootView.findViewById<Button>(R.id.key_0).setOnClickListener {
-            searchBuffer.append("0")
-            fakeBox.text = searchBuffer.toString()
-            memeViewModel.setSearchQuery(searchBuffer.toString())
-        }
-
-        rootView.findViewById<Button>(R.id.key_delete_num).setOnClickListener {
-            if (searchBuffer.isNotEmpty()) {
-                searchBuffer.deleteCharAt(searchBuffer.lastIndex)
-                fakeBox.text = searchBuffer.toString()
-                memeViewModel.setSearchQuery(searchBuffer.toString())
-            }
-        }
-        rootView.findViewById<Button>(R.id.key_to_letters).setOnClickListener { switchLayer(0) }
-
-        listOf(".",",","!","?","@","#","$","%","&","*").forEachIndexed { idx, sym ->
-            rootView.findViewById<Button>(resources.getIdentifier("key_sym_${idx+1}", "id", packageName))?.setOnClickListener {
-                searchBuffer.append(sym)
-                fakeBox.text = searchBuffer.toString()
-                memeViewModel.setSearchQuery(searchBuffer.toString())
-            }
-        }
-        rootView.findViewById<Button>(R.id.key_delete_sym).setOnClickListener {
-            if (searchBuffer.isNotEmpty()) {
-                searchBuffer.deleteCharAt(searchBuffer.lastIndex)
-                fakeBox.text = searchBuffer.toString()
-                memeViewModel.setSearchQuery(searchBuffer.toString())
-            }
-        }
-        rootView.findViewById<Button>(R.id.key_to_letters_from_sym).setOnClickListener { switchLayer(0) }
-
-        switchLayer(0)
-
-        serviceScope.launch {
-            memeViewModel.filteredMemes.collect { list ->
-                memeAdapter.submitList(list)
-            }
-        }
-
-        rootView.findViewById<Button>(R.id.btn_settings).setOnClickListener {
-            Toast.makeText(this, "Opening language settings...", Toast.LENGTH_SHORT).show()
-            val intent = Intent(Settings.ACTION_INPUT_METHOD_SUBTYPE_SETTINGS)
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            try {
-                startActivity(intent)
-            } catch (e: Exception) {
-                Toast.makeText(this, "Could not open settings: ${e.message}", Toast.LENGTH_LONG).show()
-            }
-        }
-
-        sharedPreferences = getSharedPreferences("meme_keyboard_prefs", Context.MODE_PRIVATE)
-        selectedLanguages = sharedPreferences.getStringSet(selectedLanguagesKey, setOf("English"))!!.toList()
-
-        // Settings button
-        rootView.findViewById<Button>(R.id.btn_settings).setOnClickListener {
-            showLanguageSelectionDialog()
-        }
-
-        // Language switch button
-        rootView.findViewById<Button>(R.id.btn_switch_language).setOnClickListener {
-            currentLanguageIndex = (currentLanguageIndex + 1) % selectedLanguages.size
-            Toast.makeText(this, "Switched to ${selectedLanguages[currentLanguageIndex]}", Toast.LENGTH_SHORT).show()
-        }
-
-
-
-        return rootView
-    }
-
-    private fun safeStartActivity(intent: Intent) {
-        try {
-            startActivity(intent)
-        } catch (e: Exception) {
-            Toast.makeText(this, "Failed to open meme picker: ${e.message}", Toast.LENGTH_LONG).show()
-            e.printStackTrace()
-        }
-    }
-
-    override fun onStartInputView(info: EditorInfo?, restarting: Boolean) {
-        super.onStartInputView(info, restarting)
-        searchBuffer.clear()
-        rootView.findViewById<TextView>(R.id.search_input_fake).text = ""
-        memeViewModel.setSearchQuery("")
-        memeViewModel.forceReload()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        serviceScope.cancel()
+        searchDialog?.window?.setType(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY)
+        searchDialog?.show()
     }
 
     private fun commitOrCopy(uri: Uri) {
-        val editorInfo = currentInputEditorInfo
+        val editorInfo = currentInputEditorInfo ?: return
         val mimeTypes = EditorInfoCompat.getContentMimeTypes(editorInfo)
         val supportsImage = mimeTypes.any { ClipDescription.compareMimeTypes(it, "image/*") }
+
         if (supportsImage) {
             val desc = ClipDescription("meme", arrayOf("image/*"))
             val content = InputContentInfoCompat(uri, desc, null)
@@ -270,111 +177,57 @@ class MemeKeyboardService : InputMethodService() {
         }
     }
 
-    private fun copyUriToClipboard(uri: Uri, toastMsg: String) {
+    private fun copyUriToClipboard(uri: Uri, message: String) {
         val clip = ClipData.newUri(contentResolver, "Meme URI", uri)
-        (getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(clip)
-        Toast.makeText(this, toastMsg, Toast.LENGTH_SHORT).show()
+        val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        clipboard.setPrimaryClip(clip)
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
-    private fun showLongPressMenu(meme: Meme) {
-        if (!Settings.canDrawOverlays(applicationContext)) {
-            Toast.makeText(this, "Overlay permission required to show options", Toast.LENGTH_SHORT).show()
-            return
+    override fun onDestroy() {
+        super.onDestroy()
+        serviceScope.cancel()
+    }
+
+    private var popupWindow: PopupWindow? = null
+
+    @SuppressLint("InflateParams")
+    private fun showKeyPreview(view: View, text: String) {
+        val inflater = LayoutInflater.from(view.context)
+        val previewView = inflater.inflate(R.layout.view_key_preview, null)
+        previewView.findViewById<TextView>(R.id.preview_text).text = text
+
+        popupWindow?.dismiss()
+        popupWindow = PopupWindow(
+            previewView,
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            false
+        ).apply {
+            isOutsideTouchable = false
+            isTouchable = false
+            elevation = 10f
         }
 
-        val context = applicationContext
-        val themedContext = android.view.ContextThemeWrapper(context, R.style.Theme_MemeKeyboard)
+        view.post {
+            // Measure preview to center it horizontally
+            previewView.measure(
+                View.MeasureSpec.UNSPECIFIED,
+                View.MeasureSpec.UNSPECIFIED
+            )
 
-        val options = arrayOf("Copy URI", "Delete Meme", "Cancel")
-        val dialog = AlertDialog.Builder(themedContext)
-            .setTitle("Meme Options")
-            .setItems(options) { dlg, idx ->
-                when (idx) {
-                    0 -> copyUriToClipboard(Uri.parse(meme.imagePath), "Copied meme URI")
-                    1 -> memeViewModel.deleteMeme(meme)
-                    else -> dlg.dismiss()
-                }
-            }
-            .create()
+            val xOffset = (view.width - previewView.measuredWidth) / 2
+            val yOffset = -view.height - previewView.measuredHeight + 8 // move it above
 
-        dialog.window?.setType(android.view.WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY)
-        dialog.show()
-    }
-
-    private fun switchLayer(layer: Int) {
-        currentLayer = layer
-        lettersContainer.visibility = if (layer == 0) View.VISIBLE else View.GONE
-        numbersContainer.visibility = if (layer == 1) View.VISIBLE else View.GONE
-        symbolsContainer.visibility = if (layer == 2) View.VISIBLE else View.GONE
-    }
-
-    private fun updateKeysCase() {
-        val letters = listOf("q","w","e","r","t","y","u","i","o","p","a","s","d","f","g","h","j","k","l","z","x","c","v","b","n","m")
-        letters.forEach { key ->
-            val btn = rootView.findViewById<Button>(resources.getIdentifier("key_$key", "id", packageName))
-            btn?.text = if (isCaps) key.uppercase() else key
-        }
-        val capsBtn = rootView.findViewById<Button>(R.id.key_caps)
-        capsBtn.setBackgroundColor(
-            if (isCaps) resources.getColor(android.R.color.holo_blue_light)
-            else resources.getColor(android.R.color.transparent)
-        )
-    }
-
-    private fun showLanguageSelectionDialog() {
-        val availableLocales = Locale.getAvailableLocales()
-            .map { it.displayName }
-            .distinct()
-            .sorted()
-
-        val selectedItems = BooleanArray(availableLocales.size) { i ->
-            selectedLanguages.contains(availableLocales[i])
-        }
-
-        val dialog = AlertDialog.Builder(this)
-            .setTitle("Select Supported Languages")
-            .setMultiChoiceItems(availableLocales.toTypedArray(), selectedItems) { _, which, isChecked ->
-                selectedItems[which] = isChecked
-            }
-            .setPositiveButton("Save") { _, _ ->
-                selectedLanguages = availableLocales.filterIndexed { index, _ -> selectedItems[index] }
-                sharedPreferences.edit()
-                    .putStringSet(selectedLanguagesKey, selectedLanguages.toSet())
-                    .apply()
-                currentLanguageIndex = 0
-                Toast.makeText(this, "Saved ${selectedLanguages.size} languages", Toast.LENGTH_SHORT).show()
-            }
-            .setNegativeButton("Cancel", null)
-            .create()
-
-        dialog.window?.setType(android.view.WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY)
-        dialog.show()
-    }
-
-    private fun getLettersForLocale(localeCode: String): List<String> {
-        return when (localeCode.lowercase()) {
-            "el", "greek" -> listOf("ς","ε","ρ","τ","υ","θ","ι","ο","π","α","σ","δ","φ","γ","η","ξ","κ","λ","ζ","χ","ψ","ω","β","ν","μ")
-            "fr", "french" -> listOf("a","z","e","r","t","y","u","i","o","p","q","s","d","f","g","h","j","k","l","m","w","x","c","v","b","n")
-            "de", "german" -> listOf("q","w","e","r","t","z","u","i","o","p","a","s","d","f","g","h","j","k","l","y","x","c","v","b","n","m")
-            else -> listOf("q","w","e","r","t","y","u","i","o","p","a","s","d","f","g","h","j","k","l","z","x","c","v","b","n","m") // fallback
+            popupWindow?.showAsDropDown(view, xOffset, yOffset)
         }
     }
 
-    private fun updateKeyboardKeysForLanguage(language: String) {
-        val letters = getLettersForLocale(language)
-        val keyIds = listOf(
-            "q","w","e","r","t","y","u","i","o","p",
-            "a","s","d","f","g","h","j","k","l",
-            "z","x","c","v","b","n","m"
-        )
 
-        keyIds.forEachIndexed { index, keyId ->
-            val resId = resources.getIdentifier("key_$keyId", "id", packageName)
-            val btn = rootView.findViewById<Button>(resId)
-            if (index < letters.size) {
-                btn?.text = letters[index]
-            }
-        }
+
+
+    private fun hideKeyPreview() {
+        popupWindow?.dismiss()
     }
 
 }

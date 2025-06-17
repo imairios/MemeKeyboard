@@ -4,20 +4,24 @@
     <style name="Theme.TransparentPicker" parent="@android:style/Theme.Translucent.NoTitleBar.Fullscreen" />
 
     <style name="KeyboardKey">
-        <!-- Shrink height to be like Gboard -->
         <item name="android:layout_width">0dp</item>
-        <item name="android:layout_height">42dp</item> <!-- was 56dp -->
+        <item name="android:layout_height">50dp</item> <!-- Gboard-like -->
         <item name="android:layout_weight">1</item>
 
-        <!-- Reduce margin for tighter layout -->
-        <item name="android:layout_margin">2dp</item> <!-- was 4dp -->
+        <item name="android:layout_margin">2dp</item>
 
-        <!-- Softer background -->
         <item name="android:background">@drawable/key_background</item>
-
-        <!-- Text styling -->
         <item name="android:textColor">#222222</item>
-        <item name="android:textSize">16sp</item> <!-- was 20sp -->
+        <item name="android:textSize">24sp</item> <!-- Bigger, closer to Gboard -->
+        <item name="android:textStyle">normal</item>
         <item name="android:textAllCaps">false</item>
+    </style>
+
+
+    <style name="Theme.MemeKeyboard.Transparent" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:backgroundDimEnabled">false</item>
     </style>
 </resources>

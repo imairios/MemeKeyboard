@@ -5,7 +5,7 @@ import androidx.room.RoomDatabase
 
 @Database(
     entities = [Meme::class],
-    version = 1,
+    version = 2, // ← bump this number!
     exportSchema = false
 )
 abstract class MemeDatabase : RoomDatabase() {

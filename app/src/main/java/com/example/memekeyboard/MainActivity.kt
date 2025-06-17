@@ -26,6 +26,11 @@ import com.example.memekeyboard.ui.theme.MemeKeyboardTheme
 import com.example.memekeyboard.viewmodel.MemeViewModel
 import com.example.memekeyboard.viewmodel.MemeViewModelFactory
 import kotlinx.coroutines.launch
+import android.content.Context
+import android.content.Intent
+import android.provider.Settings
+import android.view.inputmethod.InputMethodManager
+import android.view.inputmethod.InputMethodInfo
 
 class MainActivity : ComponentActivity() {
 
@@ -47,16 +52,25 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         // 2) Ορισμός του launcher για επιλογή εικόνας (ActivityResult API)
-        pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-            uri?.let {
-                pendingImageUri = it
-                showTagDialog = true
+        pickImageLauncher =
+            registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+                uri?.let {
+                    pendingImageUri = it
+                    showTagDialog = true
+                }
             }
-        }
 
         setContent {
             MemeKeyboardTheme {
-                // 3) Αν πρέπει να δείξουμε διάλογο για tags
+
+                // ✅ Show this button if keyboard is NOT enabled
+                if (!isKeyboardEnabled(this)) {
+                    TextButton(onClick = { openKeyboardSettings(this) }) {
+                        Text("Enable MemeKeyboard in Settings")
+                    }
+                }
+
+                // Show tag dialog
                 if (showTagDialog && pendingImageUri != null) {
                     AlertDialog(
                         onDismissRequest = {
@@ -64,9 +78,7 @@ class MainActivity : ComponentActivity() {
                             pendingImageUri = null
                             tagInput = ""
                         },
-                        title = {
-                            Text("Add Tags")
-                        },
+                        title = { Text("Add Tags") },
                         text = {
                             OutlinedTextField(
                                 value = tagInput,
@@ -76,36 +88,32 @@ class MainActivity : ComponentActivity() {
                         },
                         confirmButton = {
                             TextButton(onClick = {
-                                // Όταν πατάμε Save:
                                 val tags = tagInput.ifBlank { "untagged" }
-                                // Καλούμε το ViewModel να κάνει insert
-                                memeViewModel.insertMeme(
-                                    Meme(
-                                        imagePath = pendingImageUri.toString(),
-                                        tags = tags
+                                pendingImageUri?.let { uri ->
+                                    memeViewModel.insertMeme(
+                                        Meme(
+                                            name = "meme_${System.currentTimeMillis()}",
+                                            imagePath = uri.toString(),
+                                            tags = tags
+                                        )
                                     )
-                                )
-                                // Κλείνουμε τον διάλογο
+                                }
                                 showTagDialog = false
                                 pendingImageUri = null
                                 tagInput = ""
-                            }) {
-                                Text("Save")
-                            }
+                            }) { Text("Save") }
                         },
                         dismissButton = {
                             TextButton(onClick = {
                                 showTagDialog = false
                                 pendingImageUri = null
                                 tagInput = ""
-                            }) {
-                                Text("Cancel")
-                            }
+                            }) { Text("Cancel") }
                         }
                     )
                 }
 
-                // 4) Καλούμε το MainScreen, περνώντας viewModel & onPickImage
+                // Main screen
                 MainScreen(
                     viewModel = memeViewModel,
                     onPickImage = { pickImageLauncher.launch("image/*") }
@@ -113,4 +121,16 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+}
+
+fun isKeyboardEnabled(context: Context): Boolean {
+    val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+    val enabledMethods = Settings.Secure.getString(context.contentResolver, Settings.Secure.ENABLED_INPUT_METHODS)
+    return enabledMethods?.contains(context.packageName) == true
+}
+
+fun openKeyboardSettings(context: Context) {
+    val intent = Intent(Settings.ACTION_INPUT_METHOD_SETTINGS)
+    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+    context.startActivity(intent)
 }
