@@ -34,6 +34,8 @@ import com.example.memekeyboard.viewmodel.MemeViewModelFactory
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collectLatest
 import android.content.ClipDescription
+import android.util.TypedValue
+
 
 class MemeKeyboardService : InputMethodService() {
 
@@ -69,20 +71,33 @@ class MemeKeyboardService : InputMethodService() {
         )
 
         allKeys.forEach { id ->
-            rootView.findViewById<Button>(id)?.setOnTouchListener { v, event ->
+            val btn = rootView.findViewById<Button>(id)
+
+            // Preview on press
+            btn?.setOnTouchListener { v, event ->
                 val button = v as Button
                 val key = button.text.toString()
 
                 when (event.action) {
                     MotionEvent.ACTION_DOWN -> {
+                        android.util.Log.d("KEY_EVENT", "Pressed key: $key")
                         showKeyPreview(button, key)
-                        handleKeyPress(button)
+                        // Allow system to draw pressed state
                     }
-                    MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> hideKeyPreview()
+                    MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                        android.util.Log.d("KEY_EVENT", "Released key: $key")
+                        hideKeyPreview()
+                    }
                 }
-                true
+                false // <--- Allow default pressed state drawable to work
+            }
+
+            // Action on click
+            btn?.setOnClickListener {
+                handleKeyPress(it as Button)
             }
         }
+
 
         rootView.findViewById<Button>(R.id.btn_add_meme)?.setOnClickListener {
             val intent = Intent(this, TransparentAddMemeActivity::class.java)
@@ -223,10 +238,16 @@ class MemeKeyboardService : InputMethodService() {
         val previewView = inflater.inflate(R.layout.view_key_preview, null)
         previewView.findViewById<TextView>(R.id.preview_text).text = text
 
+        val fixedWidth = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            60f,
+            view.resources.displayMetrics
+        ).toInt()
+
         popupWindow?.dismiss()
         popupWindow = PopupWindow(
             previewView,
-            view.width,
+            fixedWidth,
             ViewGroup.LayoutParams.WRAP_CONTENT,
             false
         ).apply {
@@ -236,9 +257,17 @@ class MemeKeyboardService : InputMethodService() {
         }
 
         view.post {
-            previewView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
-            val xOffset = (view.width - previewView.measuredWidth) / 2
-            val yOffset = -view.height - previewView.measuredHeight + 8
+            previewView.measure(
+                View.MeasureSpec.UNSPECIFIED,
+                View.MeasureSpec.UNSPECIFIED
+            )
+
+            // Center horizontally above the key
+            val xOffset = (view.width - fixedWidth) / 2
+
+            // Push higher vertically above the key
+            val yOffset = -view.height - previewView.measuredHeight - 40 // Increase offset
+
             popupWindow?.showAsDropDown(view, xOffset, yOffset)
         }
     }
