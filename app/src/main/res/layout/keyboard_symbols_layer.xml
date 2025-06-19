@@ -28,12 +28,12 @@
         <Button style="@style/KeyboardKey" android:id="@+id/key_sym_1" android:text="." />
         <Button style="@style/KeyboardKey" android:id="@+id/key_sym_2" android:text="," />
         <Button style="@style/KeyboardKey" android:id="@+id/key_sym_3" android:text="!" />
-        <Button style="@style/KeyboardKey" android:id="@+id/key_sym_4" android:text="?" />
-        <Button style="@style/KeyboardKey" android:id="@+id/key_sym_5" android:text="@" />
+        <Button style="@style/KeyboardKey" android:id="@+id/key_sym_4" android:text="@string/label_question"  />
+        <Button style="@style/KeyboardKey" android:id="@+id/key_sym_5" android:text="@string/label_at"  />
         <Button style="@style/KeyboardKey" android:id="@+id/key_sym_6" android:text="#" />
         <Button style="@style/KeyboardKey" android:id="@+id/key_sym_7" android:text="$" />
         <Button style="@style/KeyboardKey" android:id="@+id/key_sym_8" android:text="%" />
-        <Button style="@style/KeyboardKey" android:id="@+id/key_sym_9" android:text="&amp;" />
+        <Button style="@style/KeyboardKey" android:id="@+id/key_sym_9" android:text="@string/label_example" />
         <Button style="@style/KeyboardKey" android:id="@+id/key_sym_10" android:text="*" />
         </LinearLayout>
     </LinearLayout>

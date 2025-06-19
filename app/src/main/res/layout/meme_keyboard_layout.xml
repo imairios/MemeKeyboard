@@ -73,8 +73,9 @@
         android:paddingTop="4dp">
 
         <include layout="@layout/keyboard_letters_layer" />
-        <include layout="@layout/keyboard_letters_footer"/>
         <include layout="@layout/keyboard_numbers_layer" />
         <include layout="@layout/keyboard_symbols_layer" />
+        <!-- Shared footer at bottom -->
+        <include layout="@layout/keyboard_letters_footer" />
     </LinearLayout>
 </LinearLayout>

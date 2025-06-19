@@ -34,6 +34,7 @@ import com.example.memekeyboard.viewmodel.MemeViewModelFactory
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collectLatest
 import android.content.ClipDescription
+import android.util.Log
 import android.util.TypedValue
 
 
@@ -47,10 +48,17 @@ class MemeKeyboardService : InputMethodService() {
     private var capsOn = false
     private var currentLanguageIndex = 0
     private val languages = listOf("EN", "GR")
+    private var currentLayer: String = "letters"
+    private lateinit var letters: View
+    private lateinit var numbers: View
+    private lateinit var symbols: View
+
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateInputView(): View {
         rootView = layoutInflater.inflate(R.layout.meme_keyboard_layout, null)
+        val testDynamicLeft = rootView.findViewById<Button>(R.id.key_dynamic_left)
+        android.util.Log.d("INIT", "key_dynamic_left is ${if (testDynamicLeft == null) "null" else "found"}")
 
         val db = DatabaseProvider.getDatabase(applicationContext)
         val repository = MemeRepository(db.memeDao())
@@ -64,9 +72,10 @@ class MemeKeyboardService : InputMethodService() {
             R.id.key_sym_1, R.id.key_sym_2, R.id.key_sym_3, R.id.key_sym_4, R.id.key_sym_5,
             R.id.key_sym_6, R.id.key_sym_7, R.id.key_sym_8, R.id.key_sym_9, R.id.key_sym_10,
             R.id.key_delete, R.id.key_delete_sym, R.id.key_delete_num,
-            R.id.key_space, R.id.key_caps,
+            R.id.key_space, R.id.key_dynamic_left,
             R.id.key_to_numbers, R.id.key_to_symbols,
-            R.id.key_to_letters, R.id.key_to_letters_from_sym,
+//            R.id.key_to_letters,
+            R.id.key_to_letters_from_sym,
             R.id.btn_switch_language, R.id.btn_settings
         )
 
@@ -98,6 +107,43 @@ class MemeKeyboardService : InputMethodService() {
             }
         }
 
+        // Put this above the loop
+        val keysWithPreview = setOf(
+            R.id.key_q, R.id.key_w, R.id.key_e, R.id.key_r, R.id.key_t, R.id.key_y, R.id.key_u, R.id.key_i, R.id.key_o, R.id.key_p,
+            R.id.key_a, R.id.key_s, R.id.key_d, R.id.key_f, R.id.key_g, R.id.key_h, R.id.key_j, R.id.key_k, R.id.key_l,
+            R.id.key_z, R.id.key_x, R.id.key_c, R.id.key_v, R.id.key_b, R.id.key_n, R.id.key_m,
+            R.id.key_0, R.id.key_1, R.id.key_2, R.id.key_3, R.id.key_4, R.id.key_5, R.id.key_6, R.id.key_7, R.id.key_8, R.id.key_9,
+            R.id.key_sym_1, R.id.key_sym_2, R.id.key_sym_3, R.id.key_sym_4, R.id.key_sym_5,
+            R.id.key_sym_6, R.id.key_sym_7, R.id.key_sym_8, R.id.key_sym_9, R.id.key_sym_10
+        )
+
+        allKeys.forEach { id ->
+            val btn = rootView.findViewById<Button>(id)
+
+            btn?.setOnTouchListener { v, event ->
+                val button = v as Button
+                val key = button.text.toString()
+
+                when (event.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        android.util.Log.d("KEY_EVENT", "Pressed key: $key")
+                        if (id in keysWithPreview) {
+                            showKeyPreview(button, key)
+                        }
+                    }
+                    MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                        android.util.Log.d("KEY_EVENT", "Released key: $key")
+                        hideKeyPreview()
+                    }
+                }
+                false
+            }
+
+            btn?.setOnClickListener {
+                handleKeyPress(it as Button)
+            }
+        }
+
 
         rootView.findViewById<Button>(R.id.btn_add_meme)?.setOnClickListener {
             val intent = Intent(this, TransparentAddMemeActivity::class.java)
@@ -118,21 +164,44 @@ class MemeKeyboardService : InputMethodService() {
         when (button.id) {
             R.id.key_delete, R.id.key_delete_sym, R.id.key_delete_num ->
                 currentInputConnection.deleteSurroundingText(1, 0)
+
             R.id.key_space ->
                 currentInputConnection.commitText(" ", 1)
-            R.id.key_caps -> {
-                capsOn = !capsOn
-                updateKeyCase()
+
+            R.id.key_dynamic_left -> {
+                Log.d("KEY_ACTION", "Pressed key_dynamic_left, currentLayer=$currentLayer")
+                when (currentLayer) {
+                    "letters" -> {
+                        capsOn = !capsOn
+                        updateKeyCase()
+                    }
+                    "numbers" -> toggleMoreSymbols() // ✅ This toggles your more symbols row
+                    "symbols" -> switchKeyboardLayer("numbers")
+                }
             }
-            R.id.key_to_numbers -> switchKeyboardLayer("numbers")
-            R.id.key_to_symbols -> switchKeyboardLayer("symbols")
-            R.id.key_to_letters, R.id.key_to_letters_from_sym -> switchKeyboardLayer("letters")
+
+
+
+            R.id.key_to_numbers -> {
+                if (currentLayer == "letters") {
+                    switchKeyboardLayer("numbers")
+                } else {
+                    switchKeyboardLayer("letters")
+                }
+            }
+
+            R.id.key_to_symbols -> toggleMoreSymbols()
+
+            R.id.key_to_letters_from_sym -> switchKeyboardLayer("letters")
+
             R.id.btn_switch_language -> cycleLanguage()
+
             R.id.btn_settings -> {
                 val intent = Intent(this, TransparentAddMemeActivity::class.java)
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 startActivity(intent)
             }
+
             else -> {
                 val key = button.text.toString()
                 val output = if (capsOn) key.uppercase() else key.lowercase()
@@ -140,6 +209,20 @@ class MemeKeyboardService : InputMethodService() {
             }
         }
     }
+
+    private fun toggleMoreSymbols() {
+        val moreSymbolsRow = rootView.findViewById<View>(R.id.more_symbols_row)
+        val dynamicLeftKey = rootView.findViewById<Button>(R.id.key_dynamic_left)
+
+        val isVisible = moreSymbolsRow?.visibility == View.VISIBLE
+        moreSymbolsRow?.visibility = if (isVisible) View.GONE else View.VISIBLE
+
+        // update the key label
+        dynamicLeftKey?.text = if (isVisible) "=\u003C" else "?123"
+        Log.d("KEY_ACTION", "Toggled moreSymbolsRow to ${if (isVisible) "GONE" else "VISIBLE"}")
+    }
+
+
 
     private fun updateKeyCase() {
         val letterKeys = listOf(
@@ -158,10 +241,37 @@ class MemeKeyboardService : InputMethodService() {
         val letters = rootView.findViewById<View>(R.id.keyboard_letters)
         val numbers = rootView.findViewById<View>(R.id.keyboard_numbers)
         val symbols = rootView.findViewById<View>(R.id.keyboard_symbols)
+        val dynamicLeftKey = rootView.findViewById<Button>(R.id.key_dynamic_left)
+        val toggleKey = rootView.findViewById<Button>(R.id.key_to_numbers)
 
+        val keysWithPreview = setOf(
+            // existing previewable keys...
+            R.id.key_more_1, R.id.key_more_2, R.id.key_more_3, R.id.key_more_4, R.id.key_more_5,
+            R.id.key_more_6, R.id.key_more_7, R.id.key_more_8, R.id.key_more_9
+        )
+
+        // Show the correct layer
         letters.visibility = if (layer == "letters") View.VISIBLE else View.GONE
         numbers.visibility = if (layer == "numbers") View.VISIBLE else View.GONE
         symbols.visibility = if (layer == "symbols") View.VISIBLE else View.GONE
+
+        // Update left key and toggle label (visuals only, no click handlers here)
+        when (layer) {
+            "letters" -> {
+                dynamicLeftKey?.text = "⇧"      // Caps icon
+                toggleKey?.text = "?123"        // Switch to numbers
+            }
+            "numbers" -> {
+                dynamicLeftKey?.text = "=\u003C" // =<
+                toggleKey?.text = "ABC"          // Switch to letters
+            }
+            "symbols" -> {
+                dynamicLeftKey?.text = "?123"    // Switch back to numbers
+                toggleKey?.text = "ABC"          // Switch to letters
+            }
+        }
+
+        currentLayer = layer
     }
 
     private fun cycleLanguage() {

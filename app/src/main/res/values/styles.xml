@@ -10,7 +10,19 @@
         <item name="android:layout_margin">3dp</item>
         <item name="android:background">@drawable/key_background_selector</item>
         <item name="android:textColor">#222222</item>
-        <item name="android:textSize">22sp</item>
+        <item name="android:textSize">26sp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+    <style name="KeyboardFooterKey">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">50dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_margin">3dp</item>
+        <item name="android:background">@drawable/key_background_selector</item>
+        <item name="android:textColor">#222222</item>
+        <item name="android:textSize">20sp</item> <!-- 👈 smaller text size -->
         <item name="android:textStyle">normal</item>
         <item name="android:textAllCaps">false</item>
     </style>

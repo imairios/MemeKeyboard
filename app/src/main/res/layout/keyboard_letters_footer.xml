@@ -9,21 +9,21 @@
     <!-- Switch to numbers -->
     <Button
         android:id="@+id/key_to_numbers"
-        style="@style/KeyboardKey"
-        android:text="123"
+        style="@style/KeyboardFooterKey"
+        android:text="@string/key_label_123"
         android:layout_weight="1" />
 
     <!-- Switch to symbols (active state) -->
     <Button
         android:id="@+id/key_to_symbols"
-        style="@style/KeyboardKey"
+        style="@style/KeyboardFooterKey"
         android:text="+*#"
         android:layout_weight="1" />
 
     <!-- Spacebar: large center button -->
     <Button
         android:id="@+id/key_space"
-        style="@style/KeyboardKey"
+        style="@style/KeyboardFooterKey"
         android:text="SPACE"
         android:layout_weight="3"
         android:background="@drawable/spacebar_background" />
@@ -31,14 +31,14 @@
     <!-- Language switch -->
     <Button
         android:id="@+id/btn_switch_language"
-        style="@style/KeyboardKey"
+        style="@style/KeyboardFooterKey"
         android:text="🌐"
         android:layout_weight="1" />
 
     <!-- Settings -->
     <Button
         android:id="@+id/btn_settings"
-        style="@style/KeyboardKey"
+        style="@style/KeyboardFooterKey"
         android:text="⚙"
         android:layout_weight="1" />
 </LinearLayout>
