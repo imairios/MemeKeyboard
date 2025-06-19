@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/keyboard_more_symbols"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="#EAEAEA"
+    android:padding="4dp"
+    android:visibility="gone">
+
+    <!-- Row 1 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <Button style="@style/KeyboardKey" android:id="@+id/key_more_1" android:text="~" />
+        <Button style="@style/KeyboardKey" android:id="@+id/key_more_2" android:text="\\" />
+        <Button style="@style/KeyboardKey" android:id="@+id/key_more_3" android:text="|" />
+        <Button style="@style/KeyboardKey" android:id="@+id/key_more_4" android:text="•" />
+        <Button style="@style/KeyboardKey" android:id="@+id/key_more_5" android:text="√" />
+        <Button style="@style/KeyboardKey" android:id="@+id/key_more_6" android:text="π" />
+        <Button style="@style/KeyboardKey" android:id="@+id/key_more_7" android:text="÷" />
+        <Button style="@style/KeyboardKey" android:id="@+id/key_more_8" android:text="×" />
+        <Button style="@style/KeyboardKey" android:id="@+id/key_more_9" android:text="§" />
+        <Button style="@style/KeyboardKey" android:id="@+id/key_more_10" android:text="△" />
+    </LinearLayout>
+
+    <!-- Row 2 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <Button style="@style/KeyboardKey" android:id="@+id/key_more_11" android:text="€" />
+        <Button style="@style/KeyboardKey" android:id="@+id/key_more_12" android:text="¥" />
+        <Button style="@style/KeyboardKey" android:id="@+id/key_more_13" android:text="$" />
+        <Button style="@style/KeyboardKey" android:id="@+id/key_more_14" android:text="¢" />
+        <Button style="@style/KeyboardKey" android:id="@+id/key_more_15" android:text="^" />
+        <Button style="@style/KeyboardKey" android:id="@+id/key_more_16" android:text="°" />
+        <Button style="@style/KeyboardKey" android:id="@+id/key_more_17" android:text="=" />
+        <Button style="@style/KeyboardKey" android:id="@+id/key_more_18" android:text="{" />
+        <Button style="@style/KeyboardKey" android:id="@+id/key_more_19" android:text="}" />
+        <Button style="@style/KeyboardKey" android:id="@+id/key_more_20" android:text="\\" />
+    </LinearLayout>
+
+    <!-- Row 3: Gboard-style bottom row -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp">
+
+        <Button
+            android:id="@+id/key_back_to_numbers"
+            style="@style/KeyboardSmallerKey"
+            android:text="@string/key_label_123"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"/>
+
+        <Button style="@style/KeyboardKey" android:id="@+id/key_more_21" android:text="%" android:layout_weight="1" android:layout_width="0dp" />
+        <Button style="@style/KeyboardKey" android:id="@+id/key_more_22" android:text="©" android:layout_weight="1" android:layout_width="0dp" />
+        <Button style="@style/KeyboardKey" android:id="@+id/key_more_23" android:text="®" android:layout_weight="1" android:layout_width="0dp" />
+        <Button style="@style/KeyboardKey" android:id="@+id/key_more_24" android:text="™" android:layout_weight="1" android:layout_width="0dp" />
+        <Button style="@style/KeyboardKey" android:id="@+id/key_more_25" android:text="✓" android:layout_weight="1" android:layout_width="0dp" />
+        <Button style="@style/KeyboardKey" android:id="@+id/key_more_26" android:text="[" android:layout_weight="1" android:layout_width="0dp" />
+        <Button style="@style/KeyboardKey" android:id="@+id/key_more_27" android:text="]" android:layout_weight="1" android:layout_width="0dp" />
+
+        <Button
+            android:id="@+id/key_delete_more"
+            style="@style/KeyboardKey"
+            android:text="⌫"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"/>
+    </LinearLayout>
+</LinearLayout>

@@ -55,7 +55,9 @@ class SearchOverlayActivity : Activity() {
         val adapter = MemeThumbnailAdapter(
             emptyList(),
             onMemeClick = { uri ->
-                // return selection somehow, or just close
+                val intent = android.content.Intent("com.example.memekeyboard.ACTION_INSERT_MEME")
+                intent.putExtra("meme_uri", uri.toString())
+                sendBroadcast(intent)
                 finish()
             },
             onMemeLongClick = {}

@@ -53,7 +53,7 @@
         android:orientation="horizontal"
         android:gravity="center">
 
-        <Button android:id="@+id/key_dynamic_left" style="@style/KeyboardKey" android:text="=\u003C" android:layout_weight="1" />
+        <Button android:id="@+id/key_to_more_symbols" style="@style/KeyboardFooterKey" android:text="=\u003C" android:layout_weight="1" />
         <Button style="@style/KeyboardKey" android:id="@+id/key_sym_12" android:text="*" />
         <Button style="@style/KeyboardKey" android:id="@+id/key_sym_13" android:text="&quot;" />
         <Button style="@style/KeyboardKey" android:id="@+id/key_sym_14" android:text=":" />

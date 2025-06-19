@@ -75,6 +75,7 @@
         <include layout="@layout/keyboard_letters_layer" />
         <include layout="@layout/keyboard_numbers_layer" />
         <include layout="@layout/keyboard_symbols_layer" />
+        <include layout="@layout/keyboard_more_symbols" /> <!-- ✅ Add this line -->
         <!-- Shared footer at bottom -->
         <include layout="@layout/keyboard_letters_footer" />
     </LinearLayout>

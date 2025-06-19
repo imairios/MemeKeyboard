@@ -3,6 +3,7 @@
     package="com.example.memekeyboard">
 
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
         android:allowBackup="true"
@@ -48,6 +49,12 @@
             android:exported="true"
             android:windowSoftInputMode="adjustResize|stateVisible"
             tools:ignore="DuplicateActivity" />
+
+        <activity
+            android:name=".KeyboardSettingsActivity"
+            android:exported="true"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+
 
         <!-- File provider -->
         <provider
