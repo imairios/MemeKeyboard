@@ -1,69 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:card="http://schemas.android.com/apk/res-auto"
     android:id="@+id/keyboard_symbols"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:visibility="gone"
-    android:padding="4dp">
+    android:clipChildren="false"
+    android:clipToPadding="false">
 
-    <!-- Row: 10 symbols -->
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:gravity="center"
-    android:layout_marginVertical="4dp"> <!-- Optional spacing between rows -->
+        <!-- Row: 10 symbols -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center"
-            android:paddingVertical="6dp"
             android:divider="?android:attr/dividerVertical"
             android:showDividers="middle"
-            android:dividerPadding="6dp">
+            android:dividerPadding="6dp"
+            android:clipChildren="false"
+            android:clipToPadding="false">
 
-        <Button style="@style/KeyboardKey" android:id="@+id/key_sym_1" android:text="." />
-        <Button style="@style/KeyboardKey" android:id="@+id/key_sym_2" android:text="," />
-        <Button style="@style/KeyboardKey" android:id="@+id/key_sym_3" android:text="!" />
-        <Button style="@style/KeyboardKey" android:id="@+id/key_sym_4" android:text="@string/label_question"  />
-        <Button style="@style/KeyboardKey" android:id="@+id/key_sym_5" android:text="@string/label_at"  />
-        <Button style="@style/KeyboardKey" android:id="@+id/key_sym_6" android:text="#" />
-        <Button style="@style/KeyboardKey" android:id="@+id/key_sym_7" android:text="$" />
-        <Button style="@style/KeyboardKey" android:id="@+id/key_sym_8" android:text="%" />
-        <Button style="@style/KeyboardKey" android:id="@+id/key_sym_9" android:text="@string/label_example" />
-        <Button style="@style/KeyboardKey" android:id="@+id/key_sym_10" android:text="*" />
+                <Button style="@style/KeyboardKey" android:id="@+id/key_sym_1" android:text="." />
+                <Button style="@style/KeyboardKey" android:id="@+id/key_sym_2" android:text="," />
+                <Button style="@style/KeyboardKey" android:id="@+id/key_sym_3" android:text="!" />
+                <Button style="@style/KeyboardKey" android:id="@+id/key_sym_4" android:text="@string/label_question" />
+                <Button style="@style/KeyboardKey" android:id="@+id/key_sym_5" android:text="@string/label_at" />
+                <Button style="@style/KeyboardKey" android:id="@+id/key_sym_6" android:text="#" />
+                <Button style="@style/KeyboardKey" android:id="@+id/key_sym_7" android:text="$" />
+                <Button style="@style/KeyboardKey" android:id="@+id/key_sym_8" android:text="%" />
+                <Button style="@style/KeyboardKey" android:id="@+id/key_sym_9" android:text="@string/label_example" />
+                <Button style="@style/KeyboardKey" android:id="@+id/key_sym_10" android:text="*" />
         </LinearLayout>
-    </LinearLayout>
 
-    <!-- Row: Back to ABC + Delete -->
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:gravity="center"
-    android:layout_marginVertical="4dp"> <!-- Optional spacing between rows -->
+        <!-- Row: Back to ABC + Delete -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center"
-            android:paddingVertical="6dp"
             android:divider="?android:attr/dividerVertical"
             android:showDividers="middle"
-            android:dividerPadding="6dp">
-        <Button
-            android:id="@+id/key_to_letters_from_sym"
-            android:layout_width="0dp"
-            android:layout_height="48dp"
-            android:layout_weight="2"
-            android:text="ABC" />
-        <Button
-            style="@style/KeyboardKey"
-            android:id="@+id/key_delete_sym"
-            android:text="⌫" />
+            android:dividerPadding="6dp"
+            android:clipChildren="false"
+            android:clipToPadding="false">
+
+                <Button
+                    android:id="@+id/key_to_letters_from_sym"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="2"
+                    android:text="ABC" />
+
+                <Button
+                    style="@style/KeyboardKey"
+                    android:id="@+id/key_delete_sym"
+                    android:text="⌫" />
         </LinearLayout>
-    </LinearLayout>
+
 </LinearLayout>

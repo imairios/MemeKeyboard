@@ -1,4 +1,5 @@
-<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
-    <solid android:color="#F5F5F5"/> <!-- default gray -->
-    <corners android:radius="8dp"/>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="#FAFAFA" /> <!-- Matches full keyboard bg -->
+    <corners android:radius="8dp" />
 </shape>

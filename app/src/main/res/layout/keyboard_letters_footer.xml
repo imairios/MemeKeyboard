@@ -4,41 +4,54 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:gravity="center"
-    android:padding="4dp">
+    android:clipChildren="false"
+    android:clipToPadding="false">
 
     <!-- Switch to numbers -->
     <Button
         android:id="@+id/key_to_numbers"
         style="@style/KeyboardFooterKey"
-        android:text="@string/key_label_123"
-        android:layout_weight="1" />
+        android:background="@drawable/key_special_background"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="@string/key_label_123" />
 
-    <!-- Switch to symbols (active state) -->
+    <!-- Switch to symbols -->
     <Button
-        android:id="@+id/key_to_symbols"
-        style="@style/KeyboardFooterKey"
-        android:text="+*#"
-        android:layout_weight="1" />
+        android:id="@+id/comma_key"
+        style="@style/narrowKey"
+        android:layout_width="60dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="0"
+        android:text="," />
 
-    <!-- Spacebar: large center button -->
+    <!-- Spacebar -->
     <Button
         android:id="@+id/key_space"
         style="@style/KeyboardFooterKey"
-        android:text="SPACE"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:layout_weight="3"
-        android:background="@drawable/spacebar_background" />
+        android:text="SPACE"
+        android:background="@drawable/key_special_background" />
 
     <!-- Language switch -->
     <Button
-        android:id="@+id/btn_switch_language"
-        style="@style/KeyboardFooterKey"
-        android:text="🌐"
-        android:layout_weight="1" />
+        android:id="@+id/dotMore"
+        style="@style/narrowKey"
+        android:layout_height="wrap_content"
+        android:layout_weight="0"
+        android:text="." />
 
-    <!-- Settings -->
+    <!-- Enter Key -->
     <Button
-        android:id="@+id/btn_settings"
+        android:id="@+id/key_enter"
         style="@style/KeyboardFooterKey"
-        android:text="⚙"
-        android:layout_weight="1" />
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="⏎" />
+
+
 </LinearLayout>

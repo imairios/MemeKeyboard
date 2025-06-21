@@ -1,0 +1,17 @@
+<!-- key_special_background.xml -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_pressed="true">
+        <shape android:shape="rectangle">
+            <solid android:color="#CCCCCC" /> <!-- pressed gray -->
+            <corners android:radius="6dp" />
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#DDDDDD" /> <!-- normal darker gray -->
+            <corners android:radius="6dp" />
+        </shape>
+    </item>
+</selector>
+
+

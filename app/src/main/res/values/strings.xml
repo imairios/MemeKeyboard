@@ -3,5 +3,5 @@
     <string name="key_label_123">\?123</string>
     <string name="label_at">@</string>
     <string name="label_question">?</string>
-    <string name="label_example">&amp;?</string>
+    <string name="label_example">&amp;</string>
 </resources>

@@ -36,12 +36,16 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collectLatest
 import android.content.ClipDescription
 import android.content.IntentFilter
+import android.graphics.Color
+import android.graphics.Typeface
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.util.Log
 import android.util.TypedValue
+import android.view.Gravity
 import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat
 
 
 class MemeKeyboardService : InputMethodService() {
@@ -101,9 +105,9 @@ class MemeKeyboardService : InputMethodService() {
             R.id.key_space,
             R.id.key_dynamic_left,          // from letters layout
             R.id.key_to_more_symbols,      // from numbers layout (new id you must define)
-            R.id.key_to_numbers, R.id.key_to_symbols,
+            R.id.key_to_numbers, R.id.comma_key,
             R.id.key_to_letters_from_sym,
-            R.id.btn_switch_language, R.id.btn_settings,
+            R.id.dotMore, R.id.btn_settings,
 
             // More symbols layer
             R.id.key_more_1, R.id.key_more_2, R.id.key_more_3, R.id.key_more_4, R.id.key_more_5,
@@ -112,7 +116,9 @@ class MemeKeyboardService : InputMethodService() {
             R.id.key_more_18, R.id.key_more_19, R.id.key_more_20, R.id.key_more_21,
             R.id.key_more_22, R.id.key_more_23, R.id.key_more_24, R.id.key_more_25, R.id.key_more_26,
             R.id.key_more_27,
-            R.id.key_back_to_numbers, R.id.key_delete_more
+            R.id.key_back_to_numbers, R.id.key_delete_more,
+
+            R.id.key_enter
 
         )
 
@@ -136,40 +142,45 @@ class MemeKeyboardService : InputMethodService() {
 
             btn?.setOnTouchListener { v, event ->
                 val button = v as Button
-                val key = button.text.toString()
-
                 val isDeleteKey = setOf(
                     R.id.key_delete, R.id.key_delete_sym, R.id.key_delete_num, R.id.key_delete_more
                 ).contains(button.id)
 
                 when (event.action) {
                     MotionEvent.ACTION_DOWN -> {
-                        if (id in keysWithPreview && !isDeleteKey) showKeyPreview(button, key)
+                        if (isDeleteKey) button.isPressed = true
+
+                        button.animate()
+                            .scaleX(0.9f)
+                            .scaleY(0.9f)
+                            .translationY(-8f)
+                            .setDuration(60)
+                            .start()
+
 
                         if (isDeleteKey) {
-                            currentInputConnection.deleteSurroundingText(1, 0) // Initial delete
-
+                            currentInputConnection.deleteSurroundingText(1, 0)
                             deleteJob = serviceScope.launch {
-                                delay(500) // Wait before repeat starts (like Gboard)
+                                delay(500)
                                 var interval = 150L
-
                                 while (isActive) {
                                     currentInputConnection.deleteSurroundingText(1, 0)
                                     delay(interval)
-
-                                    // After a while, increase speed
                                     if (interval > 50L) interval -= 10
                                 }
                             }
                         }
+
                     }
 
                     MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                        if (id in keysWithPreview && !isDeleteKey) {
-                            hideKeyPreview() // Hide immediately
-                        }
+                        if (isDeleteKey) button.isPressed = false
 
-
+                        button.animate()                            .scaleX(1f)
+                            .scaleY(1f)
+                            .translationY(0f)
+                            .setDuration(80)
+                            .start()
 
                         if (isDeleteKey) {
                             deleteJob?.cancel()
@@ -177,7 +188,8 @@ class MemeKeyboardService : InputMethodService() {
                         }
                     }
                 }
-                isDeleteKey // return true for delete to consume event, false otherwise
+
+                false
             }
 
 
@@ -185,6 +197,7 @@ class MemeKeyboardService : InputMethodService() {
                 handleKeyPress(it as Button)
             }
         }
+
 
         rootView.findViewById<Button>(R.id.btn_add_meme)?.setOnClickListener {
             val intent = Intent(this, TransparentAddMemeActivity::class.java)
@@ -198,7 +211,27 @@ class MemeKeyboardService : InputMethodService() {
             startActivity(intent)
         }
 
+        val enterKey = rootView.findViewById<Button>(R.id.key_enter)
+        val imeOptions = currentInputEditorInfo?.imeOptions ?: EditorInfo.IME_NULL
+        val inputType = currentInputEditorInfo?.inputType ?: 0
+
+        val isMultiline = (inputType and EditorInfo.TYPE_TEXT_FLAG_MULTI_LINE) != 0
+
+        if (isMultiline) {
+            enterKey.text = "↵"
+        } else {
+            enterKey.text = when (imeOptions and EditorInfo.IME_MASK_ACTION) {
+                EditorInfo.IME_ACTION_GO -> "Go"
+                EditorInfo.IME_ACTION_SEARCH -> "Search"
+                EditorInfo.IME_ACTION_SEND -> "Send"
+                EditorInfo.IME_ACTION_NEXT -> "Next"
+                EditorInfo.IME_ACTION_DONE -> "Done"
+                else -> "Enter"
+            }
+        }
+        updateKeyCase() // 👈 Add this right before returning rootView
         return rootView
+
     }
 
 
@@ -256,11 +289,22 @@ class MemeKeyboardService : InputMethodService() {
                 }
             }
 
-            R.id.key_to_symbols -> toggleMoreSymbols()
+            R.id.key_enter -> {
+                val inputType = currentInputEditorInfo?.inputType ?: 0
+                val imeAction = currentInputEditorInfo?.imeOptions?.and(EditorInfo.IME_MASK_ACTION)
+
+                val isMultiline = (inputType and EditorInfo.TYPE_TEXT_FLAG_MULTI_LINE) != 0
+
+                if (isMultiline) {
+                    currentInputConnection.commitText("\n", 1)
+                } else {
+                    currentInputConnection.performEditorAction(imeAction ?: EditorInfo.IME_ACTION_DONE)
+                }
+            }
+
+
 
             R.id.key_to_letters_from_sym -> switchKeyboardLayer("letters")
-
-            R.id.btn_switch_language -> cycleLanguage()
 
             R.id.btn_settings -> {
                 val intent = Intent(this, TransparentAddMemeActivity::class.java)
@@ -317,14 +361,31 @@ class MemeKeyboardService : InputMethodService() {
             btn.text = if (capsOn) original.uppercase() else original.lowercase()
         }
 
+
         val capsKey = rootView.findViewById<Button>(R.id.key_dynamic_left)
-        if (capsOn) {
-            capsKey.setBackgroundColor(resources.getColor(android.R.color.black))
-            capsKey.setTextColor(resources.getColor(android.R.color.white))
-        } else {
-            capsKey.setBackgroundResource(R.drawable.key_background_selector)
-            capsKey.setTextColor(resources.getColor(android.R.color.black))
-        }
+
+// Always show ⇪ when caps is active, ⇧ when off
+        capsKey.text = if (capsOn) "⇪" else "⇧"
+
+// Use Gboard blue background if caps is active (temp or lock), else normal background
+        val isCapsActive = capsOn
+        val backgroundRes = if (isCapsActive)
+            R.drawable.blue_key_background   // ✅ Your Gboard-style blue background
+        else
+            R.drawable.key_special_background
+
+        capsKey.setBackgroundResource(backgroundRes)
+
+// White text when caps is active, black otherwise
+        val textColor = if (isCapsActive)
+            android.R.color.white
+        else
+            android.R.color.black
+
+        capsKey.setTextColor(ContextCompat.getColor(this, textColor))
+
+// Optional: bold text when active
+        capsKey.setTypeface(null, if (isCapsActive) Typeface.BOLD else Typeface.NORMAL)
     }
 
 
@@ -338,13 +399,13 @@ class MemeKeyboardService : InputMethodService() {
         val dynamicLeftKey = rootView.findViewById<Button>(R.id.key_dynamic_left)
         val toggleKey = rootView.findViewById<Button>(R.id.key_to_numbers)
 
-        // Hide all keyboard layers first
+        // Hide all keyboard layers
         letters.visibility = View.GONE
         numbers.visibility = View.GONE
         symbols.visibility = View.GONE
         more.visibility = View.GONE
 
-        // Show only the selected layer
+        // Show selected layer
         when (layer) {
             "letters" -> letters.visibility = View.VISIBLE
             "numbers" -> numbers.visibility = View.VISIBLE
@@ -352,27 +413,31 @@ class MemeKeyboardService : InputMethodService() {
             "more" -> more.visibility = View.VISIBLE
         }
 
-        // Update visual indicators
+        // Update key visuals
         when (layer) {
             "letters" -> {
-                dynamicLeftKey?.text = "⇧"      // Caps icon
-                toggleKey?.text = "?123"        // Switch to numbers
+                toggleKey?.text = "?123"
+                updateKeyCase() // ✅ This now fully handles caps key appearance
             }
+
             "numbers" -> {
-                dynamicLeftKey?.text = "=\u003C" // =<
-                toggleKey?.text = "ABC"          // Switch to letters
+                dynamicLeftKey?.text = "</="
+                toggleKey?.text = "ABC"
             }
+
             "symbols" -> {
                 dynamicLeftKey?.text = "?123"
                 toggleKey?.text = "ABC"
             }
+
             "more" -> {
-                toggleKey?.text = "ABC"          // Optional: if toggle still visible
+                toggleKey?.text = "ABC"
             }
         }
 
         currentLayer = layer
     }
+
 
     private fun cycleLanguage() {
         currentLanguageIndex = (currentLanguageIndex + 1) % languages.size
@@ -541,4 +606,47 @@ class MemeKeyboardService : InputMethodService() {
         super.onDestroy()
     }
 
+    override fun onStartInputView(info: EditorInfo?, restarting: Boolean) {
+        super.onStartInputView(info, restarting)
+
+        val enterKey = rootView.findViewById<Button>(R.id.key_enter) ?: return
+
+        val inputType = info?.inputType ?: 0
+        val imeAction = info?.imeOptions?.and(EditorInfo.IME_MASK_ACTION)
+
+        val isMultiline = (inputType and EditorInfo.TYPE_TEXT_FLAG_MULTI_LINE) != 0
+
+        val label: String
+        val isRegularKeyStyle: Boolean
+
+        if (isMultiline || imeAction == EditorInfo.IME_ACTION_SEARCH) {
+            label = if (imeAction == EditorInfo.IME_ACTION_SEARCH) "🔍" else "↵"
+            isRegularKeyStyle = true
+        } else {
+            label = when (imeAction) {
+                EditorInfo.IME_ACTION_GO -> "Go"
+                EditorInfo.IME_ACTION_NEXT -> "Next"
+                EditorInfo.IME_ACTION_SEND -> "Send"
+                EditorInfo.IME_ACTION_DONE -> "Done"
+                else -> "↵"
+            }
+            isRegularKeyStyle = false
+        }
+
+        enterKey.text = label
+
+        if (isRegularKeyStyle) {
+            // Simulate KeyboardKey style
+            enterKey.setTextSize(TypedValue.COMPLEX_UNIT_SP, 26f)
+            enterKey.setBackgroundResource(R.drawable.key_background_selector)
+            enterKey.setTextColor(resources.getColor(android.R.color.black))
+            enterKey.setTypeface(null, android.graphics.Typeface.NORMAL)
+        } else {
+            // Simulate KeyboardFooterKey style with Gboard blue
+            enterKey.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f)
+            enterKey.setBackgroundResource(R.drawable.blue_key_background) // 👈 USE BLUE
+            enterKey.setTextColor(resources.getColor(android.R.color.white))
+            enterKey.setTypeface(null, android.graphics.Typeface.NORMAL)
+        }
+    }
 }

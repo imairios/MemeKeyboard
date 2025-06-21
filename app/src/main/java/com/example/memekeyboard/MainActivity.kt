@@ -31,6 +31,11 @@ import android.content.Intent
 import android.provider.Settings
 import android.view.inputmethod.InputMethodManager
 import android.view.inputmethod.InputMethodInfo
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 
 class MainActivity : ComponentActivity() {
 
@@ -59,67 +64,81 @@ class MainActivity : ComponentActivity() {
                     showTagDialog = true
                 }
             }
-
         setContent {
             MemeKeyboardTheme {
 
-                // ✅ Show this button if keyboard is NOT enabled
-                if (!isKeyboardEnabled(this)) {
-                    TextButton(onClick = { openKeyboardSettings(this) }) {
-                        Text("Enable MemeKeyboard in Settings")
-                    }
-                }
+                val isEnabled = isKeyboardEnabled(this)
 
-                // Show tag dialog
-                if (showTagDialog && pendingImageUri != null) {
-                    AlertDialog(
-                        onDismissRequest = {
-                            showTagDialog = false
-                            pendingImageUri = null
-                            tagInput = ""
-                        },
-                        title = { Text("Add Tags") },
-                        text = {
-                            OutlinedTextField(
-                                value = tagInput,
-                                onValueChange = { tagInput = it },
-                                label = { Text("Tags (comma-separated)") }
-                            )
-                        },
-                        confirmButton = {
-                            TextButton(onClick = {
-                                val tags = tagInput.ifBlank { "untagged" }
-                                pendingImageUri?.let { uri ->
-                                    memeViewModel.insertMeme(
-                                        Meme(
-                                            name = "meme_${System.currentTimeMillis()}",
-                                            imagePath = uri.toString(),
-                                            tags = tags
+                Column {
+                    if (!isEnabled) {
+                        // Show this if the keyboard is NOT enabled
+                        Text(
+                            text = "MemeKeyboard is not enabled.",
+                            modifier = Modifier.padding(16.dp)
+                        )
+
+                        Button(
+                            onClick = { openKeyboardSettings(this@MainActivity) },
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        ) {
+                            Text("Enable MemeKeyboard")
+                        }
+                    }
+
+                    // Tag dialog still works
+                    if (showTagDialog && pendingImageUri != null) {
+                        AlertDialog(
+                            onDismissRequest = {
+                                showTagDialog = false
+                                pendingImageUri = null
+                                tagInput = ""
+                            },
+                            title = { Text("Add Tags") },
+                            text = {
+                                OutlinedTextField(
+                                    value = tagInput,
+                                    onValueChange = { tagInput = it },
+                                    label = { Text("Tags (comma-separated)") }
+                                )
+                            },
+                            confirmButton = {
+                                TextButton(onClick = {
+                                    val tags = tagInput.ifBlank { "untagged" }
+                                    pendingImageUri?.let { uri ->
+                                        memeViewModel.insertMeme(
+                                            Meme(
+                                                name = "meme_${System.currentTimeMillis()}",
+                                                imagePath = uri.toString(),
+                                                tags = tags
+                                            )
                                         )
-                                    )
-                                }
-                                showTagDialog = false
-                                pendingImageUri = null
-                                tagInput = ""
-                            }) { Text("Save") }
-                        },
-                        dismissButton = {
-                            TextButton(onClick = {
-                                showTagDialog = false
-                                pendingImageUri = null
-                                tagInput = ""
-                            }) { Text("Cancel") }
+                                    }
+                                    showTagDialog = false
+                                    pendingImageUri = null
+                                    tagInput = ""
+                                }) { Text("Save") }
+                            },
+                            dismissButton = {
+                                TextButton(onClick = {
+                                    showTagDialog = false
+                                    pendingImageUri = null
+                                    tagInput = ""
+                                }) { Text("Cancel") }
+                            }
+                        )
+                    }
+
+                    // Main screen with image picker
+                    MainScreen(
+                        viewModel = memeViewModel,
+                        onPickImage = {
+                            pickImageLauncher.launch("image/*")
                         }
                     )
                 }
-
-                // Main screen
-                MainScreen(
-                    viewModel = memeViewModel,
-                    onPickImage = { pickImageLauncher.launch("image/*") }
-                )
             }
         }
+
     }
 }
 
